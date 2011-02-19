@@ -28,8 +28,24 @@ void adjacency_list_destroy(adjacency_list_t **adjacency_list)
 
 status_t adjacency_list_add(adjacency_list_t *adjacency_list, int node_id)
 {
-	/* TODO */
-	return FAIL;
+	adjacency_t *new_adjacency;
+
+	new_adjacency = (adjacency_t *)malloc(sizeof(adjacency_t));
+	if (new_adjacency == NULL)
+		return FAIL;
+
+	new_adjacency->node_id = node_id;
+	new_adjacency->next = NULL;
+
+	if (adjacency_list->first == NULL) {	/* empty list */
+		adjacency_list->first = new_adjacency;
+	} else {
+		adjacency_list->last->next = new_adjacency;
+	}
+	adjacency_list->last = new_adjacency;
+	adjacency_list->count += 1;
+	
+	return SUCCESS;
 }
 
 status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array)
