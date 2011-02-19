@@ -22,6 +22,15 @@ status_t adjacency_list_create(adjacency_list_t **adjacency_list)
 
 void adjacency_list_destroy(adjacency_list_t **adjacency_list)
 {
+	adjacency_t *cur_adj, *aux;
+
+	cur_adj = (*adjacency_list)->first;
+	while (cur_adj != NULL) {
+		aux = cur_adj;
+		cur_adj = cur_adj->next;
+		free(aux);
+	}
+
 	free(*adjacency_list);
 	*adjacency_list = NULL;
 }
@@ -91,7 +100,8 @@ status_t node_list_create(node_list_t **node_list)
 
 void node_list_destroy(node_list_t **node_list)
 {
-	/* TODO */
+	free(*node_list);
+	*node_list = NULL;
 }
 
 status_t node_list_add(node_list_t *node_list, int id)
