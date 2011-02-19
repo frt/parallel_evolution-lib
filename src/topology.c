@@ -50,8 +50,23 @@ status_t adjacency_list_add(adjacency_list_t *adjacency_list, int node_id)
 
 status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array)
 {
-	/* TODO */
-	return FAIL;
+	int *new_array;
+	adjacency_t *cur_adj;
+	int i;
+
+	new_array = (int *)malloc(adjacency_list->count * sizeof(int));
+	if (new_array == NULL)
+		return FAIL;
+
+	cur_adj = adjacency_list->first;
+	for (i = 0; cur_adj != NULL; ++i) {
+		new_array[i] = cur_adj->node_id;
+		cur_adj = cur_adj->next;
+	}
+
+	*id_array = new_array;
+
+	return SUCCESS;
 }
 /* --- adjacency_list end --- */
 
