@@ -116,8 +116,28 @@ void node_list_destroy(node_list_t **node_list)
 
 status_t node_list_add(node_list_t *node_list, int id)
 {
-	/* TODO */
-	return FAIL;
+	node_t *new_node;
+
+	new_node = (node_t *)malloc(sizeof(node_t));
+	if (new_node == NULL)
+		return FAIL;
+
+	if (! adjacency_list_create(&(new_node->adjacency_list)) ) {
+		free(new_node);
+		return FAIL;
+	}
+	new_node->id = id;
+	new_node->next = NULL;
+
+	if (node_list->first == NULL) {
+		node_list->first = new_node;
+	} else {
+		node_list->last->next = new_node;
+	}
+	node_list->last = new_node;
+	node_list->count += 1;
+
+	return SUCCESS;
 }
 
 status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id)
