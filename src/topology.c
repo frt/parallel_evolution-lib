@@ -181,8 +181,7 @@ void topology_destroy(topology_t **topology)
 
 status_t topology_add_node(topology_t *topology, int node_id)
 {
-	/* TODO */
-	return FAIL;
+	return node_list_add(topology->node_list, node_id);
 }
 
 status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_node_id)
