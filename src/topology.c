@@ -186,8 +186,7 @@ status_t topology_add_node(topology_t *topology, int node_id)
 
 status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_node_id)
 {
-	/* TODO */
-	return FAIL;
+	return node_list_add_adjacency(topology->node_list, node_id, adjacent_node_id);
 }
 
 status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */)
