@@ -148,8 +148,11 @@ status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id
 
 status_t node_list_get_first(node_list_t *node_list, node_t **node)
 {
-	/* TODO */
-	return FAIL;
+	if (node_list->first == NULL)
+		return FAIL;
+
+	*node = node_list->first;
+	return SUCCESS;
 }
 
 status_t node_list_get_next(node_list_t *node_list, node_t **node)
