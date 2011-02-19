@@ -155,10 +155,13 @@ status_t node_list_get_first(node_list_t *node_list, node_t **node)
 	return SUCCESS;
 }
 
-status_t node_list_get_next(node_list_t *node_list, node_t **node)
+status_t node_list_get_next(node_t **node)
 {
-	/* TODO */
-	return FAIL;
+	if ((*node)->next == NULL)
+		return FAIL;
+
+	*node = (*node)->next;
+	return SUCCESS;
 }
 /* --- node_list end --- */
 
