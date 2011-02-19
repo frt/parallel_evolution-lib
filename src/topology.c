@@ -100,6 +100,16 @@ status_t node_list_create(node_list_t **node_list)
 
 void node_list_destroy(node_list_t **node_list)
 {
+	node_t *cur_node, *aux;
+
+	cur_node = (*node_list)->first;
+	while (cur_node != NULL) {
+		aux = cur_node;
+		cur_node = cur_node->next;
+		adjacency_list_destroy(&(aux->adjacency_list));
+		free(aux);
+	}
+
 	free(*node_list);
 	*node_list = NULL;
 }
