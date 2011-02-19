@@ -73,8 +73,20 @@ status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array
 /* --- node_list start --- */
 status_t node_list_create(node_list_t **node_list)
 {
-	/* TODO */
-	return FAIL;
+	node_list_t *new_node_list;
+
+	*node_list = NULL;
+
+	new_node_list = (node_list_t *)malloc(sizeof(node_list_t));
+	if (new_node_list == NULL)
+		return FAIL;
+	new_node_list->first = NULL;
+	new_node_list->last = NULL;
+	new_node_list->count= 0;
+
+	*node_list = new_node_list;
+
+	return SUCCESS;
 }
 
 void node_list_destroy(node_list_t **node_list)
