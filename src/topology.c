@@ -174,7 +174,9 @@ status_t topology_create(topology_t **topology)
 
 void topology_destroy(topology_t **topology)
 {
-	/* TODO */
+	node_list_destroy(&((*topology)->node_list));
+	free(*topology);
+	*topology = NULL;
 }
 
 status_t topology_add_node(topology_t *topology, int node_id)
