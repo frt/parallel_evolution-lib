@@ -42,6 +42,9 @@ status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id
 /* TODO node_list_remove_adjacency() */
 status_t node_list_get_first(node_list_t *node_list, node_t **node);
 status_t node_list_get_next(node_t **node);
+
+/* an utility function */
+status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */);
 /* --- node_list end --- */
 
 /* --- topology start --- */
