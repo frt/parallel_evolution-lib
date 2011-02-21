@@ -177,8 +177,17 @@ status_t node_list_get_next(node_t **node)
 /* --- topology start --- */
 status_t topology_create(topology_t **topology)
 {
-	/* TODO */
-	return FAIL;
+	topology_t *new_topology;
+
+	new_topology = (topology_t *)malloc(sizeof(topology_t));
+	if (new_topology == NULL)
+		return FAIL;
+	if (! node_list_create(&(new_topology->node_list)))
+		return FAIL;
+	new_topology->current_node = NULL;
+
+	*topology = new_topology;
+	return SUCCESS;
 }
 
 void topology_destroy(topology_t **topology)
