@@ -209,8 +209,11 @@ status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_
 
 status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */)
 {
-	/* TODO */
-	return FAIL;
+	topology->current_node = topology->node_list->first;
+	if (topology->current_node == NULL)	/* node_list is empty */
+		return FAIL;
+	*node_id = topology->current_node->id;
+	return adjacency_list_get_all(topology->current_node->adjacency_list, adjacency_array);	/* fail if array allocation fails */
 }
 
 status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */)	/* will return FAIL after the end */
