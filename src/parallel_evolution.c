@@ -23,15 +23,15 @@ int parallel_evolution_run(int *argc, char ***argv)
 	} else {	/* algorithm executor */
 		while (1) {
 			parallel_evolution_get_algorithm(&algorithm, rank);	/* TODO */
-			algorithm_init(algorithm);	/* TODO */
+			algorithm->init();	/* TODO */
 			mpi_util_recv_adjacency_list(...);	/* TODO */
-			algorithm_run(algorithm, MIGRATION_INTERVAL);	/* TODO */
+			algorithm->run_interactions(MIGRATION_INTERVAL);	/* TODO */
 			if (mpi_util_recv_migrant(&migrant))	/* TODO non-blocking */
-				algorithm_insert_migrant(algorithm, migrant);	/* TODO */
-			algorithm_pick_migrant(algorithm, my_migrant);
+				algorithm->insert_migrant(migrant);	/* TODO */
+			algorithm->pick_migrant(my_migrant);	/* TODO */
 			mpi_util_send_migrant(my_migrant);	/* TODO non-blocking MPI_Isend() */
-			if (algorithm_ended()) {	/* TODO */
-				algorithm_get_population();	/* TODO */
+			if (algorithm->ended()) {	/* TODO */
+				algorithm->get_population();	/* TODO */
 				mpi_util_send_population();	/* TODO */
 				break;
 			}
