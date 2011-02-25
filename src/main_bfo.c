@@ -4,10 +4,10 @@
 
 int main(int argc, char *argv[])
 {
-	algorithm_t *bfo_algorithm;	/* TODO */
+	algorithm_t *bfo_algorithm;
+	int ret;
 
 	parallel_evolution_parse_topology("ring.topology");	/* TODO */
-	/* TODO */
 	algorithm_create(&bfo_algorithm,
 			bfo_init,
 			bfo_run_iterations,
@@ -17,5 +17,8 @@ int main(int argc, char *argv[])
 			bfo_get_population
 			);
 	parallel_evolution_add_algorithm(bfo_algorithm, 1, 3);	/* TODO */
-	return parallel_evolution_run();	/* TODO */
+	ret = parallel_evolution_run();	/* TODO */
+	algorithm_destroy(&bfo_algorithm);
+	
+	return ret;
 }
