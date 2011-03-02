@@ -3,7 +3,7 @@ SRC_DIR = src
 BUILD_DIR = build
 LIB_DIR = $(BUILD_DIR)/lib
 
-OBJ_FILES = $(BUILD_DIR)/migrant.o $(BUILD_DIR)/topology.o $(BUILD_DIR)/algorithm.o $(BUILD_DIR)/topology_parser.o
+OBJ_FILES = $(BUILD_DIR)/migrant.o $(BUILD_DIR)/topology.o $(BUILD_DIR)/algorithm.o $(BUILD_DIR)/topology_parser.o $(BUILD_DIR)/parallel_evolution.o
 
 CFLAGS += -I$(INCLUDE_DIR)
 
@@ -35,4 +35,14 @@ $(BUILD_DIR)/algorithm.o: $(SRC_DIR)/algorithm.c $(INCLUDE_DIR)/algorithm.h $(IN
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/topology_parser.o: $(SRC_DIR)/topology_parser.c $(INCLUDE_DIR)/topology_parser.h $(INCLUDE_DIR)/common.h $(INCLUDE_DIR)/topology.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/parallel_evolution.o: \
+		$(SRC_DIR)/parallel_evolution.c \
+		$(INCLUDE_DIR)/parallel_evolution.h \
+		$(INCLUDE_DIR)/common.h \
+		$(INCLUDE_DIR)/topology.h \
+		$(INCLUDE_DIR)/topology_parser.h \
+		$(INCLUDE_DIR)/population.h \
+		$(INCLUDE_DIR)/algorithm.h
 	$(CC) $(CFLAGS) -c -o $@ $<

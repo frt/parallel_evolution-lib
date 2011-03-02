@@ -6,13 +6,16 @@
 #include "population.h"
 #include "algorithm.h"
 
-typedef struct parallel_evolution_config {
+typedef struct parallel_evolution {
 	/* used on topology controller */
-	topology_t *topology;
+	const char *topology_file_name;
 
 	/* used on algorithm runners */
-	algorithm_t *algorithm;
-} parallel_evolution_config_t;
+	algorithm_t **algorithms;
+} parallel_evolution_t;
 
+extern parallel_evolution_t parallel_evolution;
+
+void parallel_evolution_set_topology_file_name(const char *file_name);
 int parallel_evolution_run(int *argc, char ***argv);
-status_t parallel_evolution_parse_topology(const char *file_name);
+status_t parallel_evolution_parse_topology(topology_t *topology, const char *file_name);
