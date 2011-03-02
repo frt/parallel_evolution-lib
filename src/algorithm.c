@@ -9,7 +9,7 @@ status_t algorithm_create(
 		void (*insert_migrant)(migrant_t *),
 		void (*pick_migrant)(migrant_t *),
 		int (*ended)(),
-		void (*get_population)(population_t *)
+		status_t (*get_population)(population_t **)
 		)
 {
 	algorithm_t *new_algorithm;
