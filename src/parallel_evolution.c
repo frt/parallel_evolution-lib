@@ -1,6 +1,7 @@
 #include "parallel_evolution.h"
 
 #include <mpi.h>
+#include "mpi_util.h"
 
 #define MIGRATION_INTERVAL 100	/* XXX */
 
