@@ -1,7 +1,7 @@
 #include "migrant.h"
 #include <stdlib.h>
 
-status_t migrant_create(migrant_t **migrant, int var_size, double *var)
+status_t migrant_create(migrant_t **migrant, int var_size)
 {
 	migrant_t *new_migrant;
 
