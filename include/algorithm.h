@@ -10,7 +10,7 @@ typedef struct altorithm {
 	void (*insert_migrant)(migrant_t *migrant);
 	void (*pick_migrant)(migrant_t *my_migrant);
 	int (*ended)();
-	void (*get_population)(population_t *population);
+	status_t (*get_population)(population_t **population);
 } algorithm_t;
 
 status_t algorithm_create(
@@ -20,6 +20,6 @@ status_t algorithm_create(
 		void (*insert_migrant)(migrant_t *),
 		void (*pick_migrant)(migrant_t *),
 		int (*ended)(),
-		void (*get_population)(population_t *)
+		status_t (*get_population)(population_t **)
 		);
 void algorithm_destroy(algorithm_t **algorithm);
