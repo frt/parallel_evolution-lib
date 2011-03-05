@@ -70,3 +70,8 @@ void parallel_evolution_set_topology_file_name(const char *file_name)
 {
 	parallel_evolution.topology_file_name = file_name;
 }
+
+void parallel_evolution_set_dimensions(int number_of_dimensions)
+{
+	parallel_evolution.number_of_dimensions = number_of_dimensions;
+}
