@@ -10,16 +10,16 @@
 
 parallel_evolution_t parallel_evolution;
 
-/* TODO review this function, it seems pretty wrong */ 	
 int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, size;
 	int i;
 	population_t **populations;
 	algorithm_t *algorithm;
-	migrant_t *migrant, *my_migrant;
+	migrant_t migrant, my_migrant;
 	population_t *my_population;
 	topology_t *topology;
+	int *adjacency_array;
 
 	MPI_Init(argc, argv);
 
@@ -34,7 +34,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		if (parallel_evolution_parse_topology(topology, parallel_evolution.topology_file_name) != SUCCESS)
 			return ERROR_TOPOLOGY_PARSE;
 
-		mpi_util_send_topology(topology);	/* TODO */
+		mpi_util_send_topology(topology);
 		for (i = 0; i < size; ++i)
 			mpi_util_recv_population(i, populations);	/* TODO */
 		report_results(populations);	/* TODO */
@@ -42,15 +42,15 @@ int parallel_evolution_run(int *argc, char ***argv)
 		while (1) {
 			parallel_evolution_get_algorithm(&algorithm, rank);	/* TODO */
 			algorithm->init();
-			mpi_util_recv_adjacency_list(/* ... */);	/* TODO */
+			mpi_util_recv_adjacency_list(&adjacency_array);	/* TODO */
 			algorithm->run_iterations(MIGRATION_INTERVAL);
 			if (mpi_util_recv_migrant(&migrant))	/* TODO non-blocking */
-				algorithm->insert_migrant(migrant);
-			algorithm->pick_migrant(my_migrant);
+				algorithm->insert_migrant(&migrant);
+			algorithm->pick_migrant(&my_migrant);
 			mpi_util_send_migrant(my_migrant);	/* TODO non-blocking MPI_Isend() */
 			if (algorithm->ended()) {
 				algorithm->get_population(&my_population);
-				mpi_util_send_population();	/* TODO */
+				mpi_util_send_population(my_population);	/* TODO */
 				break;
 			}
 		}
