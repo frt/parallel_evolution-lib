@@ -207,23 +207,25 @@ status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_
 	return node_list_add_adjacency(topology->node_list, node_id, adjacent_node_id);
 }
 
-status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */)
+status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */, int *count)
 {
 	if (node == NULL)
 		return FAIL;
 	*id = node->id;
+	*count = node->adjacency_list->count;
 	return adjacency_list_get_all(node->adjacency_list, adjacency_array);	/* fail if array allocation fails */
 }
 
-status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */)
+status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count)
 {
 	topology->current_node = topology->node_list->first;
-	return node_get(topology->current_node, node_id, adjacency_array);
+	return node_get(topology->current_node, node_id, adjacency_array, count);
 }
 
-status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */)	/* will return FAIL after the end */
+/* will return FAIL after the end */
+status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count)
 {
 	topology->current_node = topology->current_node->next;
-	return node_get(topology->current_node, node_id, adjacency_array);
+	return node_get(topology->current_node, node_id, adjacency_array, count);
 }
 /* --- topology end --- */

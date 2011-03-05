@@ -18,7 +18,7 @@ status_t adjacency_list_create(adjacency_list_t **adjacency_list);
 void adjacency_list_destroy(adjacency_list_t **adjacency_list);
 status_t adjacency_list_add(adjacency_list_t *adjacency_list, int node_id);
 /* TODO adjacency_list_remove(adjacency_list_t *adjacency_list, int node_id) */
-status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array);
+status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array /* output */);
 /* --- adjacency_list end --- */
 
 /* --- node_list start --- */
@@ -44,7 +44,7 @@ status_t node_list_get_first(node_list_t *node_list, node_t **node);
 status_t node_list_get_next(node_t **node);
 
 /* an utility function */
-status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */);
+status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */, int *count /* output */);
 /* --- node_list end --- */
 
 /* --- topology start --- */
@@ -60,6 +60,9 @@ status_t topology_add_node(topology_t *topology, int node_id);
 /* TODO topology_remove_node() */
 status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_node_id);
 /* TODO topology_remove_adjacency() */
-status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */);
-status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */);	/* will return FAIL after the end */
+status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count /* output */);
+
+/* will return FAIL after the end */
+status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count /* output */);
+
 /* --- topology end --- */
