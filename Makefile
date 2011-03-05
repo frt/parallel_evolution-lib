@@ -20,7 +20,7 @@ $(LIB_DIR)/parallel_evolution.a: $(LIB_DIR) $(OBJ_FILES)
 	ar rcs $@ $(OBJ_FILES)
 
 $(BIN_DIR)/parallel_evolution_bfo: $(BIN_DIR) $(BUILD_DIR)/main_bfo.o $(LIB_DIR)/parallel_evolution.a
-	$(CC) $(CFLAGS) -o $@ $*
+	mpicc $(CFLAGS) -o $@ $*
 
 clean:
 	-rm -r $(BUILD_DIR)
@@ -60,7 +60,7 @@ $(BUILD_DIR)/parallel_evolution.o: \
 		$(INCLUDE_DIR)/topology_parser.h \
 		$(INCLUDE_DIR)/population.h \
 		$(INCLUDE_DIR)/algorithm.h
-	$(CC) $(CFLAGS) -c -o $@ $<
+	mpicc $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h
-	$(CC) $(CFLAGS) -c -o $@ $<
+	mpicc $(CFLAGS) -c -o $@ $<
