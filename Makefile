@@ -4,7 +4,7 @@ BUILD_DIR = build
 LIB_DIR = $(BUILD_DIR)/lib
 BIN_DIR = $(BUILD_DIR)/bin
 
-OBJ_FILES = $(BUILD_DIR)/migrant.o $(BUILD_DIR)/topology.o $(BUILD_DIR)/algorithm.o $(BUILD_DIR)/topology_parser.o $(BUILD_DIR)/population.o $(BUILD_DIR)/parallel_evolution.o
+OBJ_FILES = $(BUILD_DIR)/migrant.o $(BUILD_DIR)/topology.o $(BUILD_DIR)/algorithm.o $(BUILD_DIR)/topology_parser.o $(BUILD_DIR)/population.o $(BUILD_DIR)/parallel_evolution.o $(BUILD_DIR)/mpi_util.o
 
 CFLAGS += -I$(INCLUDE_DIR)
 
@@ -60,4 +60,7 @@ $(BUILD_DIR)/parallel_evolution.o: \
 		$(INCLUDE_DIR)/topology_parser.h \
 		$(INCLUDE_DIR)/population.h \
 		$(INCLUDE_DIR)/algorithm.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h
 	$(CC) $(CFLAGS) -c -o $@ $<
