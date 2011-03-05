@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
 	algorithm_t *bfo_algorithm;
 	int ret;
 
+	parallel_evolution_set_number_of_dimensions(50);
 	parallel_evolution_set_topology_file_name("ring.topology");
 	algorithm_create(&bfo_algorithm,
 			bfo_init,
