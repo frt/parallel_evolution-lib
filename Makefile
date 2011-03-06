@@ -63,5 +63,5 @@ $(BUILD_DIR)/parallel_evolution.o: \
 		$(INCLUDE_DIR)/mpi_util.h
 	mpicc $(CFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h
+$(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h $(INCLUDE_DIR)/parallel_evolution.h
 	mpicc $(CFLAGS) -c -o $@ $<

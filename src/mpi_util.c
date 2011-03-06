@@ -1,8 +1,12 @@
 #include "mpi_util.h"
-#include "common.h"
 #include <mpi.h>
+#include <stdlib.h>
+#include "migrant.h"
+#include "parallel_evolution.h"
 
 #define TAG_TOPOLOGY 1
+#define TAG_POPULATION_SIZE 2
+#define TAG_POPULATION 3
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -17,4 +21,44 @@ void mpi_util_send_topology(topology_t* topology)
 				    TAG_TOPOLOGY, MPI_COMM_WORLD);
 		ret = topology_get_next_node(topology, &node_id, &adjacency_array, &adjacency_array_size);
 	}
+}
+
+status_t mpi_util_recv_popularion_array(int population_size, double **msg_array, int rank)
+{
+	int msg_size;
+
+	/* receive the raw msg, an array of doubles */
+	msg_size = population_size * parallel_evolution.number_of_dimensions;
+	*msg_array = (double *)malloc(msg_size * sizeof(double));
+	if (*msg_array == NULL)
+		return FAIL;
+	MPI_Recv(*msg_array, msg_size, MPI_DOUBLE, rank, TAG_POPULATION, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+}
+
+status_t mpi_util_recv_population(int rank, population_t *populations[])
+{
+	int population_size;
+	population_t *recv_population;
+	migrant_t *new_migrant;
+	int i;
+	double *msg_array;
+
+	/* receive the number of migrants in the population */
+	MPI_Recv(&population_size, 1, MPI_INT, rank, TAG_POPULATION_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	if (mpi_util_recv_popularion_array(population_size, &msg_array, rank) != SUCCESS)
+		return FAIL;
+
+	/* assign values to population structure */
+	if (population_create(&recv_population, population_size) != SUCCESS)
+		return FAIL;
+	for (i = 0; i < population_size; ++i) {
+		if (migrant_create(&new_migrant, parallel_evolution.number_of_dimensions) != SUCCESS)
+			return FAIL;
+		population_set_individual(recv_population, new_migrant, i);
+	}
+
+	populations[rank - 1] = recv_population;
+
+	return SUCCESS;
 }

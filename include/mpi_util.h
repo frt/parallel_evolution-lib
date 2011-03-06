@@ -1,8 +1,11 @@
 #pragma once
 
 #include "topology.h"
+#include "population.h"
+#include "common.h"
 
 void mpi_util_send_topology(topology_t* topology);
+status_t mpi_util_recv_population(int rank, population_t *populations[]);
 
 /* TODO
 src/parallel_evolution.c:                       mpi_util_recv_population(i, populations);
