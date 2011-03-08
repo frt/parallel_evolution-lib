@@ -2,12 +2,14 @@
 
 #include <mpi.h>
 #include "mpi_util.h"
+#include "processes.h"
 
 #define MIGRATION_INTERVAL 100	/* XXX */
 
 /* error codes */
 #define ERROR_TOPOLOGY_CREATE 1
 #define ERROR_TOPOLOGY_PARSE 2
+#define ERROR_PROCESS_CREATE 3
 
 parallel_evolution_t parallel_evolution;
 
@@ -22,11 +24,17 @@ int parallel_evolution_run(int *argc, char ***argv)
 	topology_t *topology;
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
+	processes_t *processes;
 
 	MPI_Init(argc, argv);
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	
+	/* FIXME */
+	if (process_create(&processes, world_size) != SUCCESS)
+		return ERROR_PROCESS_CREATE;
+
 	if (rank == 0) {	/* topology controller */
 		/* create the topology */
 		if (topology_create(&topology) != SUCCESS)

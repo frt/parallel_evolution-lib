@@ -4,7 +4,14 @@ BUILD_DIR = build
 LIB_DIR = $(BUILD_DIR)/lib
 BIN_DIR = $(BUILD_DIR)/bin
 
-OBJ_FILES = $(BUILD_DIR)/migrant.o $(BUILD_DIR)/topology.o $(BUILD_DIR)/algorithm.o $(BUILD_DIR)/topology_parser.o $(BUILD_DIR)/population.o $(BUILD_DIR)/parallel_evolution.o $(BUILD_DIR)/mpi_util.o
+OBJ_FILES = $(BUILD_DIR)/migrant.o \
+	    $(BUILD_DIR)/topology.o \
+	    $(BUILD_DIR)/algorithm.o \
+	    $(BUILD_DIR)/topology_parser.o \
+	    $(BUILD_DIR)/population.o \
+	    $(BUILD_DIR)/parallel_evolution.o \
+	    $(BUILD_DIR)/mpi_util.o \
+	    $(BUILD_DIR)/processes.o
 
 CFLAGS += -I$(INCLUDE_DIR)
 
@@ -60,8 +67,12 @@ $(BUILD_DIR)/parallel_evolution.o: \
 		$(INCLUDE_DIR)/topology_parser.h \
 		$(INCLUDE_DIR)/population.h \
 		$(INCLUDE_DIR)/algorithm.h \
-		$(INCLUDE_DIR)/mpi_util.h
+		$(INCLUDE_DIR)/mpi_util.h \
+		$(INCLUDE_DIR)/processes.h
 	mpicc $(CFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h $(INCLUDE_DIR)/parallel_evolution.h
+$(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h $(INCLUDE_DIR)/parallel_evolution.h $(BUILD_DIR)
 	mpicc $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/processes.o: $(SRC_DIR)/processes.c $(BUILD_DIR) $(INCLUDE_DIR)/processes.h $(INCLUDE_DIR)/algorithm.h $(INCLUDE_DIR)/common.h
+	$(CC) $(CFLAGS) -c -o $@ $<
