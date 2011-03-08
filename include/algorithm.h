@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "migrant.h"
-#include "population.h"	/* TODO */
+#include "population.h"
 
 typedef struct altorithm {
 	void (*init)();
