@@ -32,3 +32,10 @@ status_t processes_create(processes_t **processes, int size)
 
 	return SUCCESS;
 }
+
+void processes_destroy(processes_t **processes)
+{
+	free((*processes)->processes_array);
+	free(*processes);
+	*processes = NULL;
+}

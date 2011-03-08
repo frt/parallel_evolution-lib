@@ -14,3 +14,4 @@ typedef struct processes {
 } processes_t;
 
 status_t processes_create(processes_t **processes, int size);
+void processes_destroy(processes_t **processes);
