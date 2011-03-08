@@ -13,7 +13,7 @@ parallel_evolution_t parallel_evolution;
 
 int parallel_evolution_run(int *argc, char ***argv)
 {
-	int rank, size;
+	int rank, world_size;
 	int i;
 	population_t **populations;
 	algorithm_t *algorithm;
@@ -26,23 +26,23 @@ int parallel_evolution_run(int *argc, char ***argv)
 	MPI_Init(argc, argv);
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 	if (rank == 0) {	/* topology controller */
 		/* create the topology */
 		if (topology_create(&topology) != SUCCESS)
 			return ERROR_TOPOLOGY_CREATE;
 
 		/* parse topology from file */
-		if (parallel_evolution_parse_topology(topology, parallel_evolution.topology_file_name) != SUCCESS)
+		if (topology_parser_parse(topology, parallel_evolution.topology_file_name) != SUCCESS)
 			return ERROR_TOPOLOGY_PARSE;
 
 		mpi_util_send_topology(topology);
-		for (i = 0; i < size; ++i)
+		for (i = 0; i < world_size; ++i)
 			mpi_util_recv_population(i, populations);
 		report_results(populations);	/* TODO */
 	} else {	/* algorithm executor */
 		while (1) {
-			parallel_evolution_get_algorithm(&algorithm, rank);	/* TODO */
+			process_get_algorithm(&algorithm, rank);	/* TODO */
 			algorithm->init();
 			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
 			algorithm->run_iterations(MIGRATION_INTERVAL);
@@ -60,11 +60,6 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 	MPI_Finalize();
 	return 0;
-}
-
-status_t parallel_evolution_parse_topology(topology_t *topology, const char *file_name)
-{
-	return topology_parser_parse(topology, file_name);
 }
 
 void parallel_evolution_set_topology_file_name(const char *file_name)

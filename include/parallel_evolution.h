@@ -21,4 +21,3 @@ void parallel_evolution_set_topology_file_name(const char *file_name);
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions);
 
 int parallel_evolution_run(int *argc, char ***argv);
-status_t parallel_evolution_parse_topology(topology_t *topology, const char *file_name);
