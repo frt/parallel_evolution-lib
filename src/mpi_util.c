@@ -1,13 +1,13 @@
 #include "mpi_util.h"
 #include <mpi.h>
 #include <stdlib.h>
-#include "migrant.h"
 #include "parallel_evolution.h"
 
 #define TAG_ADJACENCY_SIZE 1
 #define TAG_ADJACENCY 2
 #define TAG_POPULATION_SIZE 3
 #define TAG_POPULATION 4
+#define TAG_MIGRANT 5
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -110,6 +110,25 @@ status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_arra
 		return FAIL;
 	
 	MPI_Recv(*adjacency_array, *adjacency_array_size, MPI_INT, 0, TAG_ADJACENCY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	return SUCCESS;
+}
+
+status_t mpi_util_recv_migrant(migrant_t *migrant)
+{
+	double *migrant_array;
+	int i;
+
+	migrant_array = (double *)malloc(parallel_evolution.number_of_dimensions * sizeof(double));
+	if (migrant_array == NULL)
+		return FAIL;
+	MPI_Recv(migrant_array, parallel_evolution.number_of_dimensions, MPI_DOUBLE, MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	for (i = 0; i < parallel_evolution.number_of_dimensions; ++i) {
+		migrant->var[i] = migrant_array[i];
+	}
+
+	free(migrant_array);
 
 	return SUCCESS;
 }
