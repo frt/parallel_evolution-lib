@@ -7,6 +7,8 @@
 #define TAG_TOPOLOGY 1
 #define TAG_POPULATION_SIZE 2
 #define TAG_POPULATION 3
+#define TAG_ADJACENCY_SIZE 4
+#define TAG_ADJACENCY 5
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -33,6 +35,8 @@ status_t mpi_util_recv_popularion_array(int population_size, double **msg_array,
 	if (*msg_array == NULL)
 		return FAIL;
 	MPI_Recv(*msg_array, msg_size, MPI_DOUBLE, rank, TAG_POPULATION, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	return SUCCESS;
 }
 
 status_t mpi_util_recv_population(int rank, population_t *populations[])
@@ -87,4 +91,24 @@ status_t mpi_util_send_population(population_t *population)
 	}
 	MPI_Send(msg_array, msg_size, MPI_DOUBLE, 0, TAG_POPULATION, MPI_COMM_WORLD);
 	free(msg_array);
+
+	return SUCCESS;
+}
+
+status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_array_size)
+{
+	MPI_Recv(adjacency_array_size, 1, MPI_INT, 0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	
+	if (*adjacency_array == NULL) {
+		free(*adjacency_array);
+		*adjacency_array = NULL;
+	}
+	
+	*adjacency_array = (int *)malloc(*adjacency_array_size * sizeof(int));
+	if (adjacency_array == NULL)
+		return FAIL;
+	
+	MPI_Recv(*adjacency_array, *adjacency_array_size, MPI_INT, 0, TAG_ADJACENCY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	return SUCCESS;
 }

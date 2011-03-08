@@ -20,7 +20,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 	migrant_t migrant, my_migrant;
 	population_t *my_population;
 	topology_t *topology;
-	int *adjacency_array;
+	int *adjacency_array = NULL;
+	int adjacency_array_size;
 
 	MPI_Init(argc, argv);
 
@@ -43,7 +44,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		while (1) {
 			parallel_evolution_get_algorithm(&algorithm, rank);	/* TODO */
 			algorithm->init();
-			mpi_util_recv_adjacency_list(&adjacency_array);
+			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
 			algorithm->run_iterations(MIGRATION_INTERVAL);
 			if (mpi_util_recv_migrant(&migrant))
 				algorithm->insert_migrant(&migrant);
