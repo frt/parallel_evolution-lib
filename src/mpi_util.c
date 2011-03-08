@@ -4,11 +4,10 @@
 #include "migrant.h"
 #include "parallel_evolution.h"
 
-#define TAG_TOPOLOGY 1
-#define TAG_POPULATION_SIZE 2
-#define TAG_POPULATION 3
-#define TAG_ADJACENCY_SIZE 4
-#define TAG_ADJACENCY 5
+#define TAG_ADJACENCY_SIZE 1
+#define TAG_ADJACENCY 2
+#define TAG_POPULATION_SIZE 3
+#define TAG_POPULATION 4
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -19,8 +18,10 @@ void mpi_util_send_topology(topology_t* topology)
 
 	ret = topology_get_first_node(topology, &node_id, &adjacency_array, &adjacency_array_size);
 	while (ret == SUCCESS) {
+		MPI_Send(&adjacency_array_size, 1, MPI_INT, node_id,
+				    TAG_ADJACENCY_SIZE, MPI_COMM_WORLD);
 		MPI_Send(adjacency_array, adjacency_array_size, MPI_INT, node_id,
-				    TAG_TOPOLOGY, MPI_COMM_WORLD);
+				    TAG_ADJACENCY, MPI_COMM_WORLD);
 		ret = topology_get_next_node(topology, &node_id, &adjacency_array, &adjacency_array_size);
 	}
 }
