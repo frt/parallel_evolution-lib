@@ -9,7 +9,8 @@
 /* error codes */
 #define ERROR_TOPOLOGY_CREATE 1
 #define ERROR_TOPOLOGY_PARSE 2
-#define ERROR_PROCESS_CREATE 3
+#define ERROR_PROCESSES_CREATE 3
+#define ERROR_PROCESSES_GET_ALGORITHM 4
 
 parallel_evolution_t parallel_evolution;
 
@@ -30,10 +31,6 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	
-	/* FIXME */
-	if (process_create(&processes, world_size) != SUCCESS)
-		return ERROR_PROCESS_CREATE;
 
 	if (rank == 0) {	/* topology controller */
 		/* create the topology */
@@ -50,7 +47,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 		report_results(populations);	/* TODO */
 	} else {	/* algorithm executor */
 		while (1) {
-			process_get_algorithm(&algorithm, rank);	/* TODO */
+			if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS)
+				return ERROR_PROCESSES_GET_ALGORITHM;
 			algorithm->init();
 			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
 			algorithm->run_iterations(MIGRATION_INTERVAL);
@@ -78,4 +76,16 @@ void parallel_evolution_set_topology_file_name(const char *file_name)
 void parallel_evolution_set_dimensions(int number_of_dimensions)
 {
 	parallel_evolution.number_of_dimensions = number_of_dimensions;
+}
+
+void parallel_evolution_create_processes()
+{
+	status_t ret;
+	int world_size;
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	ret = processes_create(&(parallel_evolution.processes), world_size);
+
+	if (ret != SUCCESS)
+		exit(ERROR_PROCESSES_CREATE);
 }

@@ -39,3 +39,27 @@ void processes_destroy(processes_t **processes)
 	free(*processes);
 	*processes = NULL;
 }
+
+void processes_add_algorithm(processes_t *processes, algorithm_t *algorithm, int first_rank, int last_rank)
+{
+	int i;
+
+	for (i = first_rank; i <= last_rank; ++i) {
+		processes->processes_array[i - 1].process_rank = i;
+		processes->processes_array[i - 1].algorithm = algorithm;
+	}
+}
+
+status_t processes_get_algorithm(processes_t *processes, algorithm_t **algorithm, int rank)
+{
+	*algorithm = NULL;
+
+	if (processes->processes_array[rank - 1].process_rank != rank)
+		return FAIL;
+	if (processes->processes_array[rank - 1].algorithm == NULL)
+		return FAIL;
+
+	*algorithm = processes->processes_array[rank - 1].algorithm;
+
+	return SUCCESS;
+}

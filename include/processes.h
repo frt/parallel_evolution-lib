@@ -15,3 +15,5 @@ typedef struct processes {
 
 status_t processes_create(processes_t **processes, int size);
 void processes_destroy(processes_t **processes);
+void processes_add_algorithm(processes_t *processes, algorithm_t *algorithm, int first_rank, int last_rank);
+status_t processes_get_algorithm(processes_t *processes, algorithm_t **algorithm, int rank);
