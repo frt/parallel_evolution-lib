@@ -37,21 +37,21 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 		mpi_util_send_topology(topology);
 		for (i = 0; i < size; ++i)
-			mpi_util_recv_population(i, populations);	/* TODO */
+			mpi_util_recv_population(i, populations);
 		report_results(populations);	/* TODO */
 	} else {	/* algorithm executor */
 		while (1) {
 			parallel_evolution_get_algorithm(&algorithm, rank);	/* TODO */
 			algorithm->init();
-			mpi_util_recv_adjacency_list(&adjacency_array);	/* TODO */
+			mpi_util_recv_adjacency_list(&adjacency_array);
 			algorithm->run_iterations(MIGRATION_INTERVAL);
-			if (mpi_util_recv_migrant(&migrant))	/* TODO non-blocking */
+			if (mpi_util_recv_migrant(&migrant))
 				algorithm->insert_migrant(&migrant);
 			algorithm->pick_migrant(&my_migrant);
-			mpi_util_send_migrant(my_migrant);	/* TODO non-blocking MPI_Isend() */
+			mpi_util_send_migrant(my_migrant);
 			if (algorithm->ended()) {
 				algorithm->get_population(&my_population);
-				mpi_util_send_population(my_population);	/* TODO */
+				mpi_util_send_population(my_population);
 				break;
 			}
 		}
