@@ -40,7 +40,7 @@ status_t mpi_util_recv_population(int rank, population_t *populations[])
 	int population_size;
 	population_t *recv_population;
 	migrant_t *new_migrant;
-	int i;
+	int i, j;
 	double *msg_array;
 
 	/* receive the number of migrants in the population */
@@ -55,10 +55,36 @@ status_t mpi_util_recv_population(int rank, population_t *populations[])
 	for (i = 0; i < population_size; ++i) {
 		if (migrant_create(&new_migrant, parallel_evolution.number_of_dimensions) != SUCCESS)
 			return FAIL;
+		for (j = 0; j < parallel_evolution.number_of_dimensions; ++j) {
+			new_migrant->var[j] = msg_array[i * parallel_evolution.number_of_dimensions + j];
+		}
 		population_set_individual(recv_population, new_migrant, i);
 	}
+
+	free(msg_array);
 
 	populations[rank - 1] = recv_population;
 
 	return SUCCESS;
+}
+
+status_t mpi_util_send_population(population_t *population)
+{
+	int msg_size;
+	double *msg_array;
+	int i, j, k;
+
+	MPI_Send(&(population->size), 1, MPI_INT, 0, TAG_POPULATION_SIZE, MPI_COMM_WORLD);
+	
+	msg_size = population->size * parallel_evolution.number_of_dimensions;
+	msg_array = (double *)malloc(msg_size * sizeof(double));
+	if (msg_array == NULL)
+		return FAIL;
+	for (i = 0; i < population->size; ++i) {
+		for (j = 0; j < parallel_evolution.number_of_dimensions; ++j) {
+			msg_array[i * parallel_evolution.number_of_dimensions + j] = population->individuals[i]->var[j];
+		}
+	}
+	MPI_Send(msg_array, msg_size, MPI_DOUBLE, 0, TAG_POPULATION, MPI_COMM_WORLD);
+	free(msg_array);
 }
