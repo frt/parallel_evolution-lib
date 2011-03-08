@@ -49,7 +49,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 			if (mpi_util_recv_migrant(&migrant))
 				algorithm->insert_migrant(&migrant);
 			algorithm->pick_migrant(&my_migrant);
-			mpi_util_send_migrant(my_migrant);
+			mpi_util_send_migrant(&my_migrant, adjacency_array, adjacency_array_size);
 			if (algorithm->ended()) {
 				algorithm->get_population(&my_population);
 				mpi_util_send_population(my_population);

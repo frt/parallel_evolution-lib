@@ -132,3 +132,27 @@ status_t mpi_util_recv_migrant(migrant_t *migrant)
 
 	return SUCCESS;
 }
+
+status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adjacency_array_size)
+{
+	double *migrant_array;
+	int i;
+	int rank;
+
+	migrant_array = (double *)malloc(parallel_evolution.number_of_dimensions * sizeof(double));
+	if (migrant_array == NULL)
+		return FAIL;
+
+	for (i = 0; i < parallel_evolution.number_of_dimensions; ++i) {
+		migrant_array[i] = migrant->var[i];
+	}
+
+	for (i = 0; i < adjacency_array_size; ++i) {
+		rank = adjacency_array[i];
+		MPI_Send(migrant_array, parallel_evolution.number_of_dimensions, MPI_DOUBLE, rank, TAG_MIGRANT, MPI_COMM_WORLD);
+	}
+
+	free(migrant_array);
+
+	return SUCCESS;
+}
