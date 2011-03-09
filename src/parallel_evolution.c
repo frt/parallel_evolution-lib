@@ -4,7 +4,7 @@
 #include "mpi_util.h"
 #include "processes.h"
 
-#define MIGRATION_INTERVAL 100	/* XXX */
+#define MIGRATION_INTERVAL 100	/* XXX should move this to parallel_evolution struct */
 
 /* error codes */
 #define ERROR_TOPOLOGY_CREATE 1
@@ -42,9 +42,9 @@ int parallel_evolution_run(int *argc, char ***argv)
 			return ERROR_TOPOLOGY_PARSE;
 
 		mpi_util_send_topology(topology);
-		for (i = 0; i < world_size; ++i)
+		for (i = 1; i < world_size; ++i)
 			mpi_util_recv_population(i, populations);
-		report_results(populations);	/* TODO */
+		report_results(populations);
 	} else {	/* algorithm executor */
 		while (1) {
 			if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS)
@@ -52,7 +52,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 			algorithm->init();
 			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
 			algorithm->run_iterations(MIGRATION_INTERVAL);
-			if (mpi_util_recv_migrant(&migrant))
+			if (mpi_util_recv_migrant(&migrant))	/* XXX could get more than one migrant per MIGRATION_INTERVAL */
 				algorithm->insert_migrant(&migrant);
 			algorithm->pick_migrant(&my_migrant);
 			mpi_util_send_migrant(&my_migrant, adjacency_array, adjacency_array_size);
@@ -84,7 +84,7 @@ void parallel_evolution_create_processes()
 	int world_size;
 	
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	ret = processes_create(&(parallel_evolution.processes), world_size);
+	ret = processes_create(&(parallel_evolution.processes), world_size - 1);
 
 	if (ret != SUCCESS)
 		exit(ERROR_PROCESSES_CREATE);
