@@ -44,7 +44,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		mpi_util_send_topology(topology);
 		for (i = 1; i < world_size; ++i)
 			mpi_util_recv_population(i, populations);
-		report_results(populations);
+		report_results(populations, world_size - 1);
 	} else {	/* algorithm executor */
 		while (1) {
 			if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS)

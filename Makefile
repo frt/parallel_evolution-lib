@@ -11,7 +11,8 @@ OBJ_FILES = $(BUILD_DIR)/migrant.o \
 	    $(BUILD_DIR)/population.o \
 	    $(BUILD_DIR)/parallel_evolution.o \
 	    $(BUILD_DIR)/mpi_util.o \
-	    $(BUILD_DIR)/processes.o
+	    $(BUILD_DIR)/processes.o \
+	    $(BUILD_DIR)/report.o
 
 CFLAGS += -I$(INCLUDE_DIR)
 
@@ -75,4 +76,7 @@ $(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLU
 	mpicc $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/processes.o: $(SRC_DIR)/processes.c $(BUILD_DIR) $(INCLUDE_DIR)/processes.h $(INCLUDE_DIR)/algorithm.h $(INCLUDE_DIR)/common.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/report.o: $(SRC_DIR)/report.c $(BUILD_DIR) $(INCLUDE_DIR)/report.h $(INCLUDE_DIR)/population.h $(INCLUDE_DIR)/parallel_evolution.h
 	$(CC) $(CFLAGS) -c -o $@ $<

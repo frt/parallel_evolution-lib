@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
 			bfo_get_population
 			);
 	parallel_evolution_create_processes();
-	parallel_evolution_add_algorithm(bfo_algorithm, 1, 3);	/* TODO */
-	ret = parallel_evolution_run();	/* TODO */
+	parallel_evolution_add_algorithm(bfo_algorithm, 1, 3);
+	ret = parallel_evolution_run();
 	algorithm_destroy(&bfo_algorithm);
 	
 	return ret;
