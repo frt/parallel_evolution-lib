@@ -3,6 +3,7 @@
 #include <mpi.h>
 #include "mpi_util.h"
 #include "processes.h"
+#include <stdlib.h>
 
 #define MIGRATION_INTERVAL 100	/* XXX should move this to parallel_evolution struct */
 
@@ -73,19 +74,24 @@ void parallel_evolution_set_topology_file_name(const char *file_name)
 	parallel_evolution.topology_file_name = file_name;
 }
 
-void parallel_evolution_set_dimensions(int number_of_dimensions)
+void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
 {
 	parallel_evolution.number_of_dimensions = number_of_dimensions;
 }
 
-void parallel_evolution_create_processes()
+void parallel_evolution_create_processes(int number_of_islands)
 {
 	status_t ret;
 	int world_size;
 	
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	world_size = number_of_islands + 1;
 	ret = processes_create(&(parallel_evolution.processes), world_size - 1);
 
 	if (ret != SUCCESS)
 		exit(ERROR_PROCESSES_CREATE);
+}
+
+void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank)
+{
+	processes_add_algorithm(parallel_evolution.processes, algorithm, first_rank, last_rank);
 }

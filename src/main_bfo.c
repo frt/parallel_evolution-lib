@@ -1,6 +1,6 @@
 #include "parallel_evolution.h"
 
-#include <bfo.h>
+#include <bfo_parallel_evolution.h>
 
 int main(int argc, char *argv[])
 {
@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
 			bfo_ended,
 			bfo_get_population
 			);
-	parallel_evolution_create_processes();
+	parallel_evolution_create_processes(3);
 	parallel_evolution_add_algorithm(bfo_algorithm, 1, 3);
-	ret = parallel_evolution_run();
+	ret = parallel_evolution_run(&argc, &argv);
 	algorithm_destroy(&bfo_algorithm);
 	
 	return ret;

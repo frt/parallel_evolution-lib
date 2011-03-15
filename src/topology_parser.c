@@ -54,9 +54,6 @@ status_t topology_parser_parse(topology_t *topology, const char *filename)
 			fclose(fp);
 			return SUCCESS;
 		}
-		if (parse_a_line(topology, fp) != SUCCESS) {
-			fclose(fp);
-			return FAIL;
-		}
+		parse_a_line(topology, fp);
 	}
 }
