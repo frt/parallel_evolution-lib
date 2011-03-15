@@ -2,6 +2,7 @@
 #include <mpi.h>
 #include <stdlib.h>
 #include "parallel_evolution.h"
+#include "log.h"
 
 #define TAG_ADJACENCY_SIZE 1
 #define TAG_ADJACENCY 2
@@ -20,8 +21,10 @@ void mpi_util_send_topology(topology_t* topology)
 	while (ret == SUCCESS) {
 		MPI_Send(&adjacency_array_size, 1, MPI_INT, node_id,
 				    TAG_ADJACENCY_SIZE, MPI_COMM_WORLD);
+		log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Adjacency array size sent.");
 		MPI_Send(adjacency_array, adjacency_array_size, MPI_INT, node_id,
 				    TAG_ADJACENCY, MPI_COMM_WORLD);
+		log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Adjacency array sent.");
 		ret = topology_get_next_node(topology, &node_id, &adjacency_array, &adjacency_array_size);
 	}
 }
