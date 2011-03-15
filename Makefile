@@ -46,7 +46,7 @@ $(LIB_DIR):
 $(BIN_DIR):
 	mkdir -p $@
 
-$(BUILD_DIR)/migrant.o: $(SRC_DIR)/migrant.c $(INCLUDE_DIR)/migrant.h $(INCLUDE_DIR)/common.h $(BUILD_DIR)
+$(BUILD_DIR)/migrant.o: $(SRC_DIR)/migrant.c $(INCLUDE_DIR)/migrant.h $(INCLUDE_DIR)/common.h $(BUILD_DIR) $(INCLUDE_DIR)/log.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/topology.o: $(SRC_DIR)/topology.c $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h $(BUILD_DIR)
