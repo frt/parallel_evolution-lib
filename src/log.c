@@ -25,9 +25,11 @@ void log(severity_t severity, module_t module, const char *msg)
 	};
 	int process_rank;
 	int is_mpi_initialized;
+	int is_mpi_finalized;
 
 	MPI_Initialized(&is_mpi_initialized);
-	if (is_mpi_initialized) {
+	MPI_Finalized(&is_mpi_finalized);
+	if (is_mpi_initialized && !is_mpi_finalized) {
 		MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
 		fprintf(stderr, "%s: %s: process %d: %s\n", severity_names[severity], module_names[module], process_rank, msg);
 	} else
