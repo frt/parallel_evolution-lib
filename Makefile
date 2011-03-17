@@ -15,7 +15,7 @@ OBJ_FILES = $(BUILD_DIR)/migrant.o \
 	    $(BUILD_DIR)/report.o \
 	    $(BUILD_DIR)/log.o
 
-CFLAGS += -I$(INCLUDE_DIR) -Ibfo/include -g
+CFLAGS += -I$(INCLUDE_DIR) -g
 
 .PHONY: all clean lib programs bfo
 
@@ -28,8 +28,8 @@ programs: $(BIN_DIR)/parallel_evolution_bfo
 $(LIB_DIR)/parallel_evolution.a: $(LIB_DIR) $(OBJ_FILES)
 	ar rcs $@ $(OBJ_FILES)
 
-$(BIN_DIR)/parallel_evolution_bfo: $(BIN_DIR) $(BUILD_DIR)/main_bfo.o $(LIB_DIR)/parallel_evolution.a bfo bfo/obj/bfo_parallel_evolution.o
-	mpicc $(CFLAGS) -o $@ $(BUILD_DIR)/main_bfo.o $(LIB_DIR)/parallel_evolution.a bfo/lib/libbfo.a bfo/obj/bfo_parallel_evolution.o
+$(BIN_DIR)/parallel_evolution_bfo: $(BIN_DIR) $(BUILD_DIR)/main_bfo.o $(LIB_DIR)/parallel_evolution.a bfo/obj/bfo_parallel_evolution.o
+	mpicc $(CFLAGS) -o $@ $(BUILD_DIR)/main_bfo.o $(LIB_DIR)/parallel_evolution.a bfo/obj/bfo_parallel_evolution.o
 
 bfo/obj/bfo_parallel_evolution.o: bfo/src/bfo_parallel_evolution.c bfo/include/bfo_parallel_evolution.h
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -66,6 +66,7 @@ $(BUILD_DIR)/main_bfo.o: $(SRC_DIR)/main_bfo.c $(INCLUDE_DIR)/parallel_evolution
 
 $(BUILD_DIR)/parallel_evolution.o: \
 		$(SRC_DIR)/parallel_evolution.c \
+		$(BUILD_DIR) \
 		$(INCLUDE_DIR)/parallel_evolution.h \
 		$(INCLUDE_DIR)/common.h \
 		$(INCLUDE_DIR)/topology.h \
@@ -73,7 +74,8 @@ $(BUILD_DIR)/parallel_evolution.o: \
 		$(INCLUDE_DIR)/population.h \
 		$(INCLUDE_DIR)/algorithm.h \
 		$(INCLUDE_DIR)/mpi_util.h \
-		$(INCLUDE_DIR)/processes.h
+		$(INCLUDE_DIR)/processes.h \
+		$(INCLUDE_DIR)/log.h
 	mpicc $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/mpi_util.o: $(SRC_DIR)/mpi_util.c $(INCLUDE_DIR)/mpi_util.h $(INCLUDE_DIR)/topology.h $(INCLUDE_DIR)/common.h $(INCLUDE_DIR)/parallel_evolution.h $(BUILD_DIR) $(INCLUDE_DIR)/log.h

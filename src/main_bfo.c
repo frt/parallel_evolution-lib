@@ -1,6 +1,6 @@
 #include "parallel_evolution.h"
 
-#include <bfo_parallel_evolution.h>
+#include "../bfo/include/bfo_parallel_evolution.h"
 
 int main(int argc, char *argv[])
 {

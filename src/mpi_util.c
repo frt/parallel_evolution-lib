@@ -116,7 +116,16 @@ status_t mpi_util_send_population(population_t *population)
 
 status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_array_size)
 {
-	//log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Receiving adjacency size...");
+	int has_msg;
+
+	log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for adjacency list to receive...");
+	MPI_Iprobe(0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, &has_msg,
+			MPI_STATUS_IGNORE);
+	if (!has_msg) {
+		log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no adjacency list to receive.");
+		return FAIL;
+	}
+	
 	MPI_Recv(adjacency_array_size, 1, MPI_INT, 0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Adjacency size received.");
 	
@@ -142,6 +151,16 @@ status_t mpi_util_recv_migrant(migrant_t *migrant)
 {
 	double *migrant_array;
 	int i;
+	int has_msg;
+
+	log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for migrant to receive...");
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &has_msg,
+			MPI_STATUS_IGNORE);
+	if (!has_msg) {
+		log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no migrant to receive.");
+		return FAIL;
+	}
+	log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There is a migrant to receive!");
 
 	migrant_array = (double *)malloc(parallel_evolution.number_of_dimensions * sizeof(double));
 	if (migrant_array == NULL) {
