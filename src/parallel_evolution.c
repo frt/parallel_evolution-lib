@@ -14,6 +14,7 @@
 #define ERROR_TOPOLOGY_PARSE 2
 #define ERROR_PROCESSES_CREATE 3
 #define ERROR_PROCESSES_GET_ALGORITHM 4
+#define ERROR_POPULATIONS_ALLOC 5
 
 parallel_evolution_t parallel_evolution;
 
@@ -21,7 +22,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, world_size;
 	int i;
-	population_t *populations[3];
+	population_t **populations;
 	algorithm_t *algorithm;
 	migrant_t *migrant;
 	population_t *my_population;
@@ -44,7 +45,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
 		/* create the topology */
 		if (topology_create(&topology) != SUCCESS) {
-			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be created. Quit...");
+			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be created. Quit.");
 			return ERROR_TOPOLOGY_CREATE;
 		}
 
@@ -58,6 +59,12 @@ int parallel_evolution_run(int *argc, char ***argv)
 		mpi_util_send_topology(topology);
 		topology_destroy(&topology);
 		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
+
+		populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
+		if (populations == NULL) {
+			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
+			return ERROR_POPULATIONS_ALLOC;
+		}
 
 		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
 		for (i = 1; i <= world_size - 1; ++i) {
