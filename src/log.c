@@ -1,4 +1,4 @@
-#include "log.h"
+#include "parallel_evolution/log.h"
 #include <stdio.h>
 #include <mpi.h>
 

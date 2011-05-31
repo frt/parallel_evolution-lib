@@ -1,8 +1,8 @@
-#include "mpi_util.h"
+#include "parallel_evolution/mpi_util.h"
 #include <mpi.h>
 #include <stdlib.h>
 #include "parallel_evolution.h"
-#include "log.h"
+#include "parallel_evolution/log.h"
 
 #define TAG_ADJACENCY_SIZE 1
 #define TAG_ADJACENCY 2

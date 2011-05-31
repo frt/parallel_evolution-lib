@@ -1,7 +1,7 @@
-#include "algorithm.h"
+#include "parallel_evolution/algorithm.h"
 
 #include <stdlib.h>
-#include "log.h"
+#include "parallel_evolution/log.h"
 
 status_t algorithm_create(
 		algorithm_t **algorithm,

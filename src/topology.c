@@ -1,5 +1,5 @@
-#include "topology.h"
-#include "stdlib.h"
+#include "parallel_evolution/topology.h"
+#include <stdlib.h>
 
 /* --- adjacency_list start --- */
 status_t adjacency_list_create(adjacency_list_t **adjacency_list)

@@ -1,13 +1,10 @@
 #include "parallel_evolution.h"
 
 #include <mpi.h>
-#include "mpi_util.h"
-#include "processes.h"
 #include <stdlib.h>
-#include "log.h"
 #include <stdio.h>
 
-#define MIGRATION_INTERVAL 100	/* XXX should move this to parallel_evolution struct */
+#define MIGRATION_INTERVAL 100	/* FIXME should move this to parallel_evolution struct */
 
 /* error codes */
 #define ERROR_TOPOLOGY_CREATE 1
@@ -49,6 +46,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 			return ERROR_TOPOLOGY_CREATE;
 		}
 
+		/* FIXME topology parser should not be in the lib */
 		/* parse topology from file */
 		if (topology_parser_parse(topology, parallel_evolution.topology_file_name) != SUCCESS) {
 			topology_destroy(&topology);
@@ -57,7 +55,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		}
 
 		mpi_util_send_topology(topology);
-		topology_destroy(&topology);
+		topology_destroy(&topology);	/* TODO Makes topology A-Changin, so no need to destroy is here */
 		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
 
 		populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));

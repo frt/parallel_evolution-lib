@@ -1,4 +1,5 @@
-#include "topology_parser.h"
+/* FIXME file parsing code should go to app code */
+#include "parallel_evolution/topology_parser.h"
 #include <stdio.h>
 
 status_t parse_a_line(topology_t *topology, FILE *fp)

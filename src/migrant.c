@@ -1,6 +1,6 @@
-#include "migrant.h"
+#include "parallel_evolution/migrant.h"
 #include <stdlib.h>
-#include "log.h"
+#include "parallel_evolution/log.h"
 
 status_t migrant_create(migrant_t **migrant, int var_size)
 {
