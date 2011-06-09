@@ -1,5 +1,5 @@
 AC_PREREQ([2.65])
-AC_INIT([parallel_evolution], [0.1], [fr.teodoro@gmail.com])
+AC_INIT([parallel_evolution-lib], [0.1], [fr.teodoro@gmail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 # Checks for programs.
