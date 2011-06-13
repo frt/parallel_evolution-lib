@@ -19,4 +19,4 @@ typedef int severity_t;
 #define MODULE_TOPOLOGY_PARSER 10
 typedef int module_t;
 
-void log(severity_t severity, module_t module, const char *msg);
+void parallel_evolution_log(severity_t severity, module_t module, const char *msg);

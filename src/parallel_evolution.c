@@ -30,19 +30,19 @@ int parallel_evolution_run(int *argc, char ***argv)
 	const char log_msg[256];
 
 	MPI_Init(argc, argv);
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI inicializado.");
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI inicializado.");
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 	sprintf (log_msg, "I am process %d of %d.", rank, world_size);
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 	if (rank == 0) {	/* topology controller */
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
 		/* create the topology */
 		if (topology_create(&topology) != SUCCESS) {
-			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be created. Quit.");
+			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be created. Quit.");
 			return ERROR_TOPOLOGY_CREATE;
 		}
 
@@ -50,69 +50,69 @@ int parallel_evolution_run(int *argc, char ***argv)
 		/* parse topology from file */
 		if (topology_parser_parse(topology, parallel_evolution.topology_file_name) != SUCCESS) {
 			topology_destroy(&topology);
-			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be parsed. This is the end...");
+			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be parsed. This is the end...");
 			return ERROR_TOPOLOGY_PARSE;
 		}
 
 		mpi_util_send_topology(topology);
 		topology_destroy(&topology);	/* TODO Makes topology A-Changin, so no need to destroy is here */
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
 
 		populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
 		if (populations == NULL) {
-			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
+			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
 			return ERROR_POPULATIONS_ALLOC;
 		}
 
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
 		for (i = 1; i <= world_size - 1; ++i) {
 			sprintf(log_msg, "Receiving population from process %d...", i);
-			log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 			mpi_util_recv_population(i, populations);
 
 			sprintf(log_msg, "Population from process %d received.", i);
-			log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 		}
 		
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
 		report_results(populations, world_size - 1);
 
 	} else {	/* algorithm executor */
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
 		if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS) {
-			log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get the algorithm. Quit...");
+			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get the algorithm. Quit...");
 			return ERROR_PROCESSES_GET_ALGORITHM;
 		}
 		algorithm->init();
-		log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
 		migrant_create(&migrant, parallel_evolution.number_of_dimensions);
 		while (1) {
 			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
-			log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
 
 			algorithm->run_iterations(MIGRATION_INTERVAL);
 			sprintf(log_msg, "Algorithm has runned for %d iterations.", MIGRATION_INTERVAL);
-			log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 			while (mpi_util_recv_migrant(migrant) == SUCCESS) {
 				algorithm->insert_migrant(migrant);
-				log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant inserted into local population.");
+				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant inserted into local population.");
 			}
 			algorithm->pick_migrant(migrant);
-			log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
 			mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
 			if (algorithm->ended()) {
-				log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
+				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
 				algorithm->get_population(&my_population);
-				log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
+				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
 				mpi_util_send_population(my_population);
 				break;
 			}
 		}
 	}
 
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI will be finalized.");
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI will be finalized.");
 	MPI_Finalize();
 	return 0;
 }
@@ -124,7 +124,7 @@ void parallel_evolution_set_topology_file_name(const char *file_name)
 	parallel_evolution.topology_file_name = file_name;
 
 	sprintf(log_msg, "Topology file name set to \"%s\".", file_name);
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 }
 
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
@@ -134,7 +134,7 @@ void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
 	parallel_evolution.number_of_dimensions = number_of_dimensions;
 
 	sprintf(log_msg, "Number of dimensions set to %d.", number_of_dimensions);
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 }
 
 void parallel_evolution_create_processes(int number_of_islands)
@@ -146,11 +146,11 @@ void parallel_evolution_create_processes(int number_of_islands)
 	ret = processes_create(&(parallel_evolution.processes), world_size - 1);
 
 	if (ret != SUCCESS) {
-		log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Processes struct could not be created.");
+		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Processes struct could not be created.");
 		exit(ERROR_PROCESSES_CREATE);
 	}
 
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Processes struct created.");
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Processes struct created.");
 }
 
 void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank)
@@ -160,5 +160,5 @@ void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, in
 	processes_add_algorithm(parallel_evolution.processes, algorithm, first_rank, last_rank);
 
 	sprintf(log_msg, "Algorithm added to processes from %d to %d.", first_rank, last_rank);
-	log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 }

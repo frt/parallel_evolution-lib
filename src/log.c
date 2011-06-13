@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <mpi.h>
 
-void log(severity_t severity, module_t module, const char *msg)
+void parallel_evolution_log(severity_t severity, module_t module, const char *msg)
 {
 	const char *severity_names[] = {
 		"undefined", 

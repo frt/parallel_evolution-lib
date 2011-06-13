@@ -19,7 +19,7 @@ status_t algorithm_create(
 
 	new_algorithm = (algorithm_t *)malloc(sizeof(algorithm_t));
 	if (new_algorithm == NULL) {
-		log(SEVERITY_ERROR, MODULE_ALGORITHM, "I can't allocate memory for the algorithm.");
+		parallel_evolution_log(SEVERITY_ERROR, MODULE_ALGORITHM, "I can't allocate memory for the algorithm.");
 		return FAIL;
 	}
 	new_algorithm->init = init;
@@ -31,7 +31,7 @@ status_t algorithm_create(
 
 	*algorithm = new_algorithm;
 
-	log(SEVERITY_DEBUG, MODULE_ALGORITHM, "Algorithm created.");
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_ALGORITHM, "Algorithm created.");
 	return SUCCESS;
 }
 
@@ -39,5 +39,5 @@ void algorithm_destroy(algorithm_t **algorithm)
 {
 	free(*algorithm);
 	*algorithm = NULL;
-	log(SEVERITY_DEBUG, MODULE_ALGORITHM, "Algorithm destroyed.");
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_ALGORITHM, "Algorithm destroyed.");
 }
