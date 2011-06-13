@@ -21,6 +21,5 @@ AC_CONFIG_HEADERS([config.h])
 AC_FUNC_MALLOC
 
 AC_CONFIG_FILES([Makefile src/Makefile])
-LF_SET_INCLUDES
 
 AC_OUTPUT
