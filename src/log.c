@@ -1,6 +1,14 @@
+#include "config.h"
 #include "parallel_evolution/log.h"
 #include <stdio.h>
-#include <mpi.h>
+#ifdef HAVE_MPI_H 
+	#include <mpi.h>
+#else 
+#ifdef HAVE_MPI_MPI_H
+	#include <mpi/mpi.h>
+#endif
+#endif
+
 
 void parallel_evolution_log(severity_t severity, module_t module, const char *msg)
 {
