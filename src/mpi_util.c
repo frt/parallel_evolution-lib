@@ -1,11 +1,9 @@
 #include "config.h"
 #include "parallel_evolution/mpi_util.h"
-#ifdef HAVE_MPI_H 
+#if HAVE_MPI_H 
 	#include <mpi.h>
-#else 
-#ifdef HAVE_MPI_MPI_H
+#elif HAVE_MPI_MPI_H
 	#include <mpi/mpi.h>
-#endif
 #endif
 #include <stdlib.h>
 #include "parallel_evolution.h"
