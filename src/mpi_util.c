@@ -34,7 +34,7 @@ void mpi_util_send_topology(topology_t* topology)
 	}
 }
 
-status_t mpi_util_recv_popularion_array(int population_size, double **msg_array, int rank)
+status_t mpi_util_recv_population_array(int population_size, double **msg_array, int rank)
 {
 	int msg_size;
 
@@ -63,7 +63,7 @@ status_t mpi_util_recv_population(int rank, population_t *populations[])
 	MPI_Recv(&population_size, 1, MPI_INT, rank, TAG_POPULATION_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Population size received.");
 
-	if (mpi_util_recv_popularion_array(population_size, &msg_array, rank) != SUCCESS) {
+	if (mpi_util_recv_population_array(population_size, &msg_array, rank) != SUCCESS) {
 		parallel_evolution_log(SEVERITY_ERROR, MODULE_MPI_UTIL, "Population array not received.");
 		return FAIL;
 	}
@@ -121,7 +121,7 @@ status_t mpi_util_send_population(population_t *population)
 
 status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_array_size)
 {
-	int has_msg;
+	int has_msg = 0;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for adjacency list to receive...");
 	MPI_Iprobe(0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, &has_msg,
@@ -156,11 +156,11 @@ status_t mpi_util_recv_migrant(migrant_t *migrant)
 {
 	double *migrant_array;
 	int i;
-	int has_msg;
+	int has_msg = 0;
+	MPI_Status status;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for migrant to receive...");
-	MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &has_msg,
-			MPI_STATUS_IGNORE);
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &has_msg, &status);
 	if (!has_msg) {
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no migrant to receive.");
 		return FAIL;
@@ -172,7 +172,8 @@ status_t mpi_util_recv_migrant(migrant_t *migrant)
 		parallel_evolution_log(SEVERITY_ERROR, MODULE_MPI_UTIL, "Migrant array could not be allocated.");
 		return FAIL;
 	}
-	MPI_Recv(migrant_array, parallel_evolution.number_of_dimensions, MPI_DOUBLE, MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	MPI_Recv(migrant_array, parallel_evolution.number_of_dimensions, MPI_DOUBLE, status.MPI_SOURCE, TAG_MIGRANT,
+			MPI_COMM_WORLD,	&status);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Migrant array received.");
 
 	for (i = 0; i < parallel_evolution.number_of_dimensions; ++i) {

@@ -92,20 +92,28 @@ int parallel_evolution_run(int *argc, char ***argv)
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
 		migrant_create(&migrant, parallel_evolution.number_of_dimensions);
 		while (1) {
-			mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
-
-			algorithm->run_iterations(MIGRATION_INTERVAL);
-			sprintf(log_msg, "Algorithm has runned for %d iterations.", MIGRATION_INTERVAL);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
-
+			/* receive migrants */
 			while (mpi_util_recv_migrant(migrant) == SUCCESS) {
 				algorithm->insert_migrant(migrant);
 				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant inserted into local population.");
 			}
+
+			/* run algorithm */
+			algorithm->run_iterations(MIGRATION_INTERVAL);
+			sprintf(log_msg, "Algorithm has runned for %d iterations.", MIGRATION_INTERVAL);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+
 			algorithm->pick_migrant(migrant);
 			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
+
+			/* will need the adjacency array before sending migrants */
+			while (adjacency_array == NULL)
+				if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
+					parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
+							"Adjacency list received.");
+
 			mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
+
 			if (algorithm->ended()) {
 				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
 				algorithm->get_population(&my_population);
