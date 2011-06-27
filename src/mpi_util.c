@@ -213,3 +213,31 @@ status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adj
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Migrant sent to all destinys.");
 	return SUCCESS;
 }
+
+int mpi_util_recv_report_done()
+{
+    /* TODO */
+    return 0;
+}
+
+void mpi_util_send_finalize()
+{
+    /* TODO */
+}
+
+int mpi_util_recv_stop_sending()
+{
+    /* TODO */
+    return 0;
+}
+
+void mpi_util_send_report_done()
+{
+    /* TODO */
+}
+
+int mpi_util_recv_finalize()
+{
+    /* TODO */
+    return 0;
+}
