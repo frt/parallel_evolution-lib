@@ -236,7 +236,9 @@ int mpi_util_recv_report_done()
 
 void mpi_util_send_report_done()
 {
-    /* TODO */
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Sendind \"report_done\"...");
+    MPI_Send(NULL, 0, MPI_CHAR, 0, TAG_REPORT_DONE, MPI_COMM_WORLD);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "\"report_done\" sended.");
 }
 
 int mpi_util_recv_finalize()

@@ -74,7 +74,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
 		while (done_count < world_size - 1) {
-            done_rank = mpi_util_recv_report_done();    /* TODO */
+            done_rank = mpi_util_recv_report_done();
             if (done_rank != 0) {
                 ++done_count;
                 sprintf(log_msg, "Received report_done from process %d...", done_rank);
@@ -139,7 +139,7 @@ int parallel_evolution_run(int *argc, char ***argv)
             /* report to master that the algorithm has converged */
 			if (!converged && algorithm->ended()) {
 				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
-                mpi_util_send_report_done(); /* TODO */
+                mpi_util_send_report_done();
                 converged = !converged;
             }
 
