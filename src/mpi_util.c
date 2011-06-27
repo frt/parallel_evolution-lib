@@ -14,6 +14,7 @@
 #define TAG_POPULATION_SIZE 3
 #define TAG_POPULATION 4
 #define TAG_MIGRANT 5
+#define TAG_REPORT_DONE 6
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -216,6 +217,30 @@ status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adj
 
 int mpi_util_recv_report_done()
 {
+	const char log_msg[256];
+	MPI_Status status;
+    int has_msg;
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for \"report_done\" received...");
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_REPORT_DONE, MPI_COMM_WORLD, &has_msg, &status);
+	if (has_msg) {
+        sprintf (log_msg, "There is a \"report_done\" from process %d to receive...", status.MPI_SOURCE);
+        parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+        MPI_Recv(NULL, 0, MPI_CHAR, status.MPI_SOURCE, TAG_REPORT_DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "\"report_done\" received.");
+    } else {
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no \"report_done\" to receive.");
+	}
+    return has_msg;
+}
+
+void mpi_util_send_report_done()
+{
+    /* TODO */
+}
+
+int mpi_util_recv_finalize()
+{
     /* TODO */
     return 0;
 }
@@ -231,13 +256,6 @@ int mpi_util_recv_stop_sending()
     return 0;
 }
 
-void mpi_util_send_report_done()
-{
+void mpi_util_send_stop_sending() {
     /* TODO */
-}
-
-int mpi_util_recv_finalize()
-{
-    /* TODO */
-    return 0;
 }

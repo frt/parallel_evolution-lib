@@ -82,6 +82,9 @@ int parallel_evolution_run(int *argc, char ***argv)
             }
 		}
 
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"stop_sending\" notifications...");
+        mpi_util_send_stop_sending();   /* TODO */
+
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
         mpi_util_send_finalize();   /* TODO */
 
