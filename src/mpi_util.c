@@ -15,6 +15,9 @@
 #define TAG_POPULATION 4
 #define TAG_MIGRANT 5
 #define TAG_REPORT_DONE 6
+#define TAG_FINALIZE 7
+
+typedef int tag_t;
 
 void mpi_util_send_topology(topology_t* topology)
 {
@@ -215,36 +218,47 @@ status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adj
 	return SUCCESS;
 }
 
-int mpi_util_recv_report_done()
+int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
 {
 	const char log_msg[256];
 	MPI_Status status;
-    int has_msg;
+	int has_msg;
 
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for \"report_done\" received...");
-	MPI_Iprobe(MPI_ANY_SOURCE, TAG_REPORT_DONE, MPI_COMM_WORLD, &has_msg, &status);
+	sprintf (log_msg, "Probing for \"%s\" received...", tag_name);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+	MPI_Iprobe(source, tag, MPI_COMM_WORLD, &has_msg, &status);
 	if (has_msg) {
-        sprintf (log_msg, "There is a \"report_done\" from process %d to receive...", status.MPI_SOURCE);
-        parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
-        MPI_Recv(NULL, 0, MPI_CHAR, status.MPI_SOURCE, TAG_REPORT_DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "\"report_done\" received.");
-    } else {
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no \"report_done\" to receive.");
+		if (source == MPI_ANY_SOURCE) {
+			sprintf (log_msg, "There is a \"%s\" from process %d to receive...", tag_name, status.MPI_SOURCE);
+		} else {
+			sprintf (log_msg, "There is a \"%s\" to receive...", tag_name);
+		}
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+		MPI_Recv(NULL, source, MPI_CHAR, status.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		sprintf (log_msg, "\"%s\" received.", tag_name);
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+	} else {
+		sprintf (log_msg, "There's no \"%s\" to receive.", tag_name);
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
 	}
-    return has_msg;
+	return has_msg;
+}
+
+int mpi_util_recv_report_done()
+{
+	return mpi_util_recv_tag(TAG_REPORT_DONE, "report_done", MPI_ANY_SOURCE);
 }
 
 void mpi_util_send_report_done()
 {
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Sendind \"report_done\"...");
-    MPI_Send(NULL, 0, MPI_CHAR, 0, TAG_REPORT_DONE, MPI_COMM_WORLD);
+	MPI_Send(NULL, 0, MPI_CHAR, 0, TAG_REPORT_DONE, MPI_COMM_WORLD);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "\"report_done\" sended.");
 }
 
 int mpi_util_recv_finalize()
 {
-    /* TODO */
-    return 0;
+	return mpi_util_recv_tag(TAG_FINALIZE, "finalize", 0);
 }
 
 void mpi_util_send_finalize()
