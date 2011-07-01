@@ -244,6 +244,19 @@ int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
 	return has_msg;
 }
 
+void mpi_util_send_tag(tag_t tag, const char *tag_name, int dest)
+{
+	const char log_msg[256];
+
+	sprintf(log_msg, "Sendind \"%s\"...", tag_name);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+
+	MPI_Send(NULL, 0, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+
+	sprintf(log_msg, "\"%s\" sended.", tag_name);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
+}
+
 int mpi_util_recv_report_done()
 {
 	return mpi_util_recv_tag(TAG_REPORT_DONE, "report_done", MPI_ANY_SOURCE);
@@ -251,9 +264,7 @@ int mpi_util_recv_report_done()
 
 void mpi_util_send_report_done()
 {
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Sendind \"report_done\"...");
-	MPI_Send(NULL, 0, MPI_CHAR, 0, TAG_REPORT_DONE, MPI_COMM_WORLD);
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "\"report_done\" sended.");
+	mpi_util_send_tag(TAG_REPORT_DONE, "report_done", 0);
 }
 
 int mpi_util_recv_finalize()
@@ -263,7 +274,12 @@ int mpi_util_recv_finalize()
 
 void mpi_util_send_finalize()
 {
-    /* TODO */
+	int dest, world_size;
+
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	for (dest = 1; rank < world_size; ++rank) {
+		mpi_util_send_tag(TAG_FINALIZE, "finalize", dest);
+	}
 }
 
 int mpi_util_recv_stop_sending()

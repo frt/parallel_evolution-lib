@@ -86,7 +86,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 		mpi_util_send_stop_sending();   /* TODO */
 
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
-		mpi_util_send_finalize();   /* TODO */
+		mpi_util_send_finalize();
 
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
 		for (i = 1; i <= world_size - 1; ++i) {
