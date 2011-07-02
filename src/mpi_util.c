@@ -234,7 +234,7 @@ int mpi_util_recv_tag(int tag, const char *tag_name, int source)
 			sprintf (log_msg, "There is a \"%s\" to receive...", tag_name);
 		}
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
-		MPI_Recv(NULL, source, MPI_CHAR, status.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Recv(NULL, 0, MPI_CHAR, status.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		sprintf (log_msg, "\"%s\" received.", tag_name);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
 	} else {
