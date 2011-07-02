@@ -31,7 +31,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
 	processes_t *processes;
-	const char log_msg[256];
+	char log_msg[256];
 	int converged = 0;
 	int stop_sending = 0;
 	int done_count = 0;
@@ -161,7 +161,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 void parallel_evolution_set_topology_file_name(const char *file_name)
 {
-	const char log_msg[256];
+	char log_msg[256];
 
 	parallel_evolution.topology_file_name = file_name;
 
@@ -171,7 +171,7 @@ void parallel_evolution_set_topology_file_name(const char *file_name)
 
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
 {
-	const char log_msg[256];
+	char log_msg[256];
 
 	parallel_evolution.number_of_dimensions = number_of_dimensions;
 
@@ -197,7 +197,7 @@ void parallel_evolution_create_processes(int number_of_islands)
 
 void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank)
 {
-	const char log_msg[256];
+	char log_msg[256];
 
 	processes_add_algorithm(parallel_evolution.processes, algorithm, first_rank, last_rank);
 
