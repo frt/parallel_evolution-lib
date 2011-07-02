@@ -274,14 +274,19 @@ int mpi_util_recv_finalize()
 	return mpi_util_recv_tag(TAG_FINALIZE, "finalize", 0);
 }
 
-void mpi_util_send_finalize()
+void mpi_util_send_tag_from_master_to_all(tag_t tag, const char *tag_name)
 {
 	int dest, world_size;
 
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 	for (dest = 1; dest < world_size; ++dest) {
-		mpi_util_send_tag(TAG_FINALIZE, "finalize", dest);
+		mpi_util_send_tag(tag, tag_name, dest);
 	}
+}
+
+void mpi_util_send_finalize()
+{
+	mpi_util_send_tag_from_master_to_all(TAG_FINALIZE, "finalize");
 }
 
 int mpi_util_recv_stop_sending()
@@ -289,6 +294,7 @@ int mpi_util_recv_stop_sending()
     return mpi_util_recv_tag(TAG_STOP_SENDING, "stop_sending", 0);
 }
 
-void mpi_util_send_stop_sending() {
-    /* TODO */
+void mpi_util_send_stop_sending() 
+{
+	mpi_util_send_tag_from_master_to_all(TAG_STOP_SENDING, "stop_sending");
 }
