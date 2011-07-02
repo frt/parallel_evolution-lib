@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "parallel_evolution.h"
 #include "parallel_evolution/log.h"
+#include <stdio.h>
 
 #define TAG_ADJACENCY_SIZE 1
 #define TAG_ADJACENCY 2
@@ -16,6 +17,7 @@
 #define TAG_MIGRANT 5
 #define TAG_REPORT_DONE 6
 #define TAG_FINALIZE 7
+#define TAG_STOP_SENDING 8
 
 typedef int tag_t;
 
@@ -220,11 +222,11 @@ status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adj
 
 int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
 {
-	const char log_msg[256];
+	char log_msg[256];
 	MPI_Status status;
 	int has_msg;
 
-	sprintf (log_msg, "Probing for \"%s\" received...", tag_name);
+	sprintf(log_msg, "Probing for \"%s\" received...", tag_name);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
 	MPI_Iprobe(source, tag, MPI_COMM_WORLD, &has_msg, &status);
 	if (has_msg) {
@@ -246,7 +248,7 @@ int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
 
 void mpi_util_send_tag(tag_t tag, const char *tag_name, int dest)
 {
-	const char log_msg[256];
+	char log_msg[256];
 
 	sprintf(log_msg, "Sendind \"%s\"...", tag_name);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, log_msg);
@@ -277,15 +279,14 @@ void mpi_util_send_finalize()
 	int dest, world_size;
 
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	for (dest = 1; rank < world_size; ++rank) {
+	for (dest = 1; dest < world_size; ++dest) {
 		mpi_util_send_tag(TAG_FINALIZE, "finalize", dest);
 	}
 }
 
 int mpi_util_recv_stop_sending()
 {
-    /* TODO */
-    return 0;
+    return mpi_util_recv_tag(TAG_STOP_SENDING, "stop_sending", 0);
 }
 
 void mpi_util_send_stop_sending() {

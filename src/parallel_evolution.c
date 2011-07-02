@@ -133,7 +133,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 				algorithm->pick_migrant(migrant);
 				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
 				mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
-				stop_sending = mpi_util_recv_stop_sending();    /* TODO */
+				stop_sending = mpi_util_recv_stop_sending();
 			}
 
 			/* report to master that the algorithm has converged */
