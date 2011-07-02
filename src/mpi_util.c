@@ -19,8 +19,6 @@
 #define TAG_FINALIZE 7
 #define TAG_STOP_SENDING 8
 
-typedef int tag_t;
-
 void mpi_util_send_topology(topology_t* topology)
 {
 	int node_id;
@@ -220,7 +218,7 @@ status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adj
 	return SUCCESS;
 }
 
-int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
+int mpi_util_recv_tag(int tag, const char *tag_name, int source)
 {
 	char log_msg[256];
 	MPI_Status status;
@@ -246,7 +244,7 @@ int mpi_util_recv_tag(tag_t tag, const char *tag_name, int source)
 	return has_msg;
 }
 
-void mpi_util_send_tag(tag_t tag, const char *tag_name, int dest)
+void mpi_util_send_tag(int tag, const char *tag_name, int dest)
 {
 	char log_msg[256];
 
@@ -274,7 +272,7 @@ int mpi_util_recv_finalize()
 	return mpi_util_recv_tag(TAG_FINALIZE, "finalize", 0);
 }
 
-void mpi_util_send_tag_from_master_to_all(tag_t tag, const char *tag_name)
+void mpi_util_send_tag_from_master_to_all(int tag, const char *tag_name)
 {
 	int dest, world_size;
 
