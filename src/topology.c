@@ -57,6 +57,26 @@ status_t adjacency_list_add(adjacency_list_t *adjacency_list, int node_id)
 	return SUCCESS;
 }
 
+void adjacency_list_remove(adjacency_list_t *adjacency_list, int node_id)
+{
+	adjacency_t *cur_adj, *prev_adj = NULL, *to_remove = NULL;
+
+	for (cur_adj = adjacency_list->first; cur_adj != adjacency_list->last; prev_adj = cur_adj, cur_adj = cur_adj->next) {
+		if (cur_adj->node_id == node_id) {
+			if (prev_adj == NULL)
+				adjacency_list->first = cur_adj->next;
+			else
+				prev_adj->next = cur_adj->next;
+			to_remove = cur_adj;
+		}
+		cur_adj = cur_adj->next;
+		if (to_remove != NULL) {
+			free(to_remove);
+			to_remove = NULL;
+		}
+	}
+}
+
 status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array)
 {
 	int *new_array;

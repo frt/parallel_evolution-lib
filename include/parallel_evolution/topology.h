@@ -17,7 +17,7 @@ typedef struct adjacency_list {
 status_t adjacency_list_create(adjacency_list_t **adjacency_list);
 void adjacency_list_destroy(adjacency_list_t **adjacency_list);
 status_t adjacency_list_add(adjacency_list_t *adjacency_list, int node_id);
-/* TODO adjacency_list_remove(adjacency_list_t *adjacency_list, int node_id) */
+void adjacency_list_remove(adjacency_list_t *adjacency_list, int node_id);
 status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array /* output */);
 /* --- adjacency_list end --- */
 
