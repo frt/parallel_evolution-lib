@@ -1,0 +1,6 @@
+#!/bin/sh
+
+grep_opts="--color=auto -r --exclude *.m4 --exclude configure --exclude lstodo --exclude-dir *.cache --exclude-dir build"
+grep $grep_opts FIXME *
+grep $grep_opts XXX *
+grep $grep_opts TODO *
