@@ -16,7 +16,6 @@ typedef int severity_t;
 #define MODULE_PROCESSES 7
 #define MODULE_REPORT 8
 #define MODULE_TOPOLOGY 9
-#define MODULE_TOPOLOGY_PARSER 10
 typedef int module_t;
 
 void parallel_evolution_log(severity_t severity, module_t module, const char *msg);

@@ -27,7 +27,6 @@ void parallel_evolution_log(severity_t severity, module_t module, const char *ms
 		"processes", 
 		"report", 
 		"topology", 
-		"topology_parser"
 	};
 	int process_rank;
 	int is_mpi_initialized;

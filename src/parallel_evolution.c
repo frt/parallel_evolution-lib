@@ -27,7 +27,6 @@ int parallel_evolution_run(int *argc, char ***argv)
 	algorithm_t *algorithm;
 	migrant_t *migrant;
 	population_t *my_population;
-	topology_t *topology;
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
 	processes_t *processes;
@@ -48,22 +47,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 	if (rank == 0) {	/* topology controller */
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
-		/* create the topology */
-		if (topology_create(&topology) != SUCCESS) {
-			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be created. Quit.");
-			return ERROR_TOPOLOGY_CREATE;
-		}
 
-		/* FIXME topology parser should not be in the lib */
-		/* parse topology from file */
-		if (topology_parser_parse(topology, parallel_evolution.topology_file_name) != SUCCESS) {
-			topology_destroy(&topology);
-			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Topology could not be parsed. This is the end...");
-			return ERROR_TOPOLOGY_PARSE;
-		}
-
-		mpi_util_send_topology(topology);
-		topology_destroy(&topology);	/* TODO Makes topology A-Changin, so no need to destroy is here */
+		mpi_util_send_topology(parallel_evolution.topology);	/* TODO Makes topology A-Changin and a change detector here */
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
 
 		populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
@@ -123,7 +108,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 			/* will need the adjacency array before sending migrants */
-			while (adjacency_array == NULL)
+			while (adjacency_array == NULL)	/* XXX mount initial adjacency array using the topology created in initialization. 
+							   So there is no need of this loop. */
 				if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
 					parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
 							"Adjacency list received.");
@@ -159,14 +145,10 @@ int parallel_evolution_run(int *argc, char ***argv)
 	return 0;
 }
 
-void parallel_evolution_set_topology_file_name(const char *file_name)
+void parallel_evolution_set_topogy(topology_t *topology)
 {
-	char log_msg[256];
-
-	parallel_evolution.topology_file_name = file_name;
-
-	sprintf(log_msg, "Topology file name set to \"%s\".", file_name);
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution.topology = topology;
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology set.");
 }
 
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)

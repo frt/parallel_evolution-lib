@@ -7,7 +7,6 @@
 
 #include "parallel_evolution/common.h"
 #include "parallel_evolution/topology.h"
-#include "parallel_evolution/topology_parser.h"
 #include "parallel_evolution/population.h"
 #include "parallel_evolution/algorithm.h"
 #include "parallel_evolution/processes.h"
@@ -15,7 +14,7 @@
 
 typedef struct parallel_evolution {
 	/* used on topology controller */
-	const char *topology_file_name;
+	topology_t *topology;
 	int number_of_dimensions;
 
 	/* used on algorithm runners */
@@ -25,7 +24,7 @@ typedef struct parallel_evolution {
 
 extern parallel_evolution_t parallel_evolution;
 
-void parallel_evolution_set_topology_file_name(const char *file_name);	/* FIXME topology parser should not be in the lib */
+void parallel_evolution_set_topology(topology_t *topology);
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions);
 void parallel_evolution_create_processes(int number_of_islands);
 void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank);
