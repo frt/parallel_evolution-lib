@@ -6,6 +6,7 @@
 #define SEVERITY_ERROR 3
 typedef int severity_t;
 
+/* TODO this defines will be removed */
 #define MODULE_UNDEFINED 0
 #define MODULE_ALGORITHM 1
 #define MODULE_COMMON 2

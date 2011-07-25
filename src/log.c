@@ -8,6 +8,7 @@
 #endif
 
 
+/* TODO get module name from caller as a (const char *) */
 void parallel_evolution_log(severity_t severity, module_t module, const char *msg)
 {
 	const char *severity_names[] = {

@@ -11,8 +11,6 @@
 #define MIGRATION_INTERVAL 100	/* FIXME should move this to parallel_evolution struct */
 
 /* error codes */
-#define ERROR_TOPOLOGY_CREATE 1
-#define ERROR_TOPOLOGY_PARSE 2
 #define ERROR_PROCESSES_CREATE 3
 #define ERROR_PROCESSES_GET_ALGORITHM 4
 #define ERROR_POPULATIONS_ALLOC 5
