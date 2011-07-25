@@ -145,7 +145,7 @@ int parallel_evolution_run(int *argc, char ***argv)
 	return 0;
 }
 
-void parallel_evolution_set_topogy(topology_t *topology)
+void parallel_evolution_set_topology(topology_t *topology)
 {
 	parallel_evolution.topology = topology;
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology set.");
