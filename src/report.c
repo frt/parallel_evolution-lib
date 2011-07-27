@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "parallel_evolution.h"
 
-/* FIXME very poor reporting, please sugestions are welcome */
 /* FIXME I think it should go into app code, not here */
 void report_results(population_t **populations, int size)
 {
