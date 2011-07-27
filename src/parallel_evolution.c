@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MIGRATION_INTERVAL 100	/* FIXME should move this to parallel_evolution struct */
-
 /* error codes */
 #define ERROR_PROCESSES_CREATE 3
 #define ERROR_PROCESSES_GET_ALGORITHM 4
@@ -101,8 +99,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 			}
 
 			/* run algorithm */
-			algorithm->run_iterations(MIGRATION_INTERVAL);
-			sprintf(log_msg, "Algorithm has runned for %d iterations.", MIGRATION_INTERVAL);
+			algorithm->run_iterations(parallel_evolution.migration_interval);
+			sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
 			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 			/* will need the adjacency array before sending migrants */
@@ -183,4 +181,9 @@ void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, in
 
 	sprintf(log_msg, "Algorithm added to processes from %d to %d.", first_rank, last_rank);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+}
+
+void parallel_evolution_set_migration_interval(int iterations)
+{
+	parallel_evolution.migration_interval = iterations;
 }
