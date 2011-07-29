@@ -104,14 +104,12 @@ int parallel_evolution_run(int *argc, char ***argv)
 			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 			/* will need the adjacency array before sending migrants */
-			while (adjacency_array == NULL)	/* XXX mount initial adjacency array using the topology created in initialization. 
-							   So there is no need of this loop. */
-				if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
-					parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
-							"Adjacency list received.");
+			if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
+				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
+						"Adjacency list received.");
 
 			/* send migrant */
-			if (!stop_sending) {
+			if (adjacency_array != NULL && !stop_sending) {
 				algorithm->pick_migrant(migrant);
 				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
 				mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
