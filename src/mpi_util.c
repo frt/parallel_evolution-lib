@@ -85,7 +85,8 @@ status_t mpi_util_recv_population(int rank, population_t *populations[])
 		for (j = 0; j < parallel_evolution.number_of_dimensions; ++j) {
 			new_migrant->var[j] = msg_array[i * parallel_evolution.number_of_dimensions + j];
 		}
-		population_set_individual(recv_population, new_migrant, i);
+		if (population_set_individual(recv_population, new_migrant, i) != SUCCESS)
+			parallel_evolution_log(SEVERITY_ERROR, MODULE_MPI_UTIL, "Index of new migrant out of bounds. Not setting!");
 	}
 
 	free(msg_array);

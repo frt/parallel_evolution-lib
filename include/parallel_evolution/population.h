@@ -10,4 +10,4 @@ typedef struct population {
 
 status_t population_create(population_t **population, int size);
 void population_destroy(population_t **population);
-void population_set_individual(population_t *population, migrant_t *migrant, int idx);
+status_t population_set_individual(population_t *population, migrant_t *migrant, int idx);

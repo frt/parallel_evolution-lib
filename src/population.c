@@ -28,7 +28,12 @@ void population_destroy(population_t **population)
 	*population = NULL;
 }
 
-void population_set_individual(population_t *population, migrant_t *migrant, int idx)
+status_t population_set_individual(population_t *population, migrant_t *migrant, int idx)
 {
-	population->individuals[idx] = migrant;	/* XXX too bad if idx is bigger than population->size */
+	if (idx < 0 || idx >= population->size)
+		return FAIL;
+
+	population->individuals[idx] = migrant;
+
+	return SUCCESS;
 }
