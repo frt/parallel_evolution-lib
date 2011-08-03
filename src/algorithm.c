@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "parallel_evolution/log.h"
 
+#define MODULE_ALGORITHM "algorithm"
+
 status_t algorithm_create(
 		algorithm_t **algorithm,
 		void (*init)(),

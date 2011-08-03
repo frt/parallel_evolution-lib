@@ -7,9 +7,7 @@
 	#include <mpi/mpi.h>
 #endif
 
-
-/* TODO get module name from caller as a (const char *) */
-void parallel_evolution_log(severity_t severity, module_t module, const char *msg)
+void parallel_evolution_log(severity_t severity, const char *module_name, const char *msg)
 {
 	const char *severity_names[] = {
 		"undefined", 
@@ -17,18 +15,7 @@ void parallel_evolution_log(severity_t severity, module_t module, const char *ms
 		"warning", 
 		"error"
 	};
-	const char *module_names[] = {
-		"undefined", 
-		"algorithm", 
-		"common", 
-		"migrant", 
-		"mpi_util", 
-		"parallel_evolution", 
-		"population", 
-		"processes", 
-		"report", 
-		"topology", 
-	};
+
 	int process_rank;
 	int is_mpi_initialized;
 	int is_mpi_finalized;
@@ -37,7 +24,7 @@ void parallel_evolution_log(severity_t severity, module_t module, const char *ms
 	MPI_Finalized(&is_mpi_finalized);
 	if (is_mpi_initialized && !is_mpi_finalized) {
 		MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
-		fprintf(stderr, "%s: %s: process %d: %s\n", severity_names[severity], module_names[module], process_rank, msg);
+		fprintf(stderr, "%s: %s: process %d: %s\n", severity_names[severity], module_name, process_rank, msg);
 	} else
-		fprintf(stderr, "%s: %s: %s\n", severity_names[severity], module_names[module], msg);
+		fprintf(stderr, "%s: %s: %s\n", severity_names[severity], module_name, msg);
 }

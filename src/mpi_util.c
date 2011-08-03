@@ -19,6 +19,8 @@
 #define TAG_FINALIZE 7
 #define TAG_STOP_SENDING 8
 
+#define MODULE_MPI_UTIL "mpi_util"
+
 void mpi_util_send_topology(topology_t* topology)
 {
 	int node_id;

@@ -13,6 +13,8 @@
 #define ERROR_PROCESSES_GET_ALGORITHM 4
 #define ERROR_POPULATIONS_ALLOC 5
 
+#define MODULE_PARALLEL_EVOLUTION "parallel_evolution"
+
 parallel_evolution_t parallel_evolution;
 
 int parallel_evolution_run(int *argc, char ***argv)

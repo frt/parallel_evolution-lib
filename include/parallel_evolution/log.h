@@ -6,17 +6,4 @@
 #define SEVERITY_ERROR 3
 typedef int severity_t;
 
-/* TODO this defines will be removed */
-#define MODULE_UNDEFINED 0
-#define MODULE_ALGORITHM 1
-#define MODULE_COMMON 2
-#define MODULE_MIGRANT 3
-#define MODULE_MPI_UTIL 4
-#define MODULE_PARALLEL_EVOLUTION 5
-#define MODULE_POPULATION 6
-#define MODULE_PROCESSES 7
-#define MODULE_REPORT 8
-#define MODULE_TOPOLOGY 9
-typedef int module_t;
-
-void parallel_evolution_log(severity_t severity, module_t module, const char *msg);
+void parallel_evolution_log(severity_t severity, const char *module_name, const char *msg);

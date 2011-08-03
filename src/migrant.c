@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "parallel_evolution/log.h"
 
+#define MODULE_MIGRANT "migrant"
+
 status_t migrant_create(migrant_t **migrant, int var_size)
 {
 	migrant_t *new_migrant;
