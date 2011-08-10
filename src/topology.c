@@ -160,6 +160,37 @@ status_t node_list_add(node_list_t *node_list, int id)
 	return SUCCESS;
 }
 
+void node_remove(node_t *to_remove, node_t **prev_next)
+{
+	*prev_next = to_remove->next;
+
+	/* destroy node */
+	adjacency_list_destroy(&(to_remove->adjacency_list));
+	free(to_remove);
+}
+
+status_t node_list_remove(node_list_t *node_list, int id)
+{
+	node_t *cur_node = NULL;
+	node_t *prev_node = NULL;
+
+	/* get first node */
+	if (node_list_get_first(node_list, &cur_node) == FAIL)	/* node_list is empty */
+		return FAIL;
+
+	/* search for the wanted node */
+	while (cur_node->id != id) {
+		prev_node = cur_node;
+		if (node_list_get_next(&cur_node) == FAIL)	/* node not found */
+			return FAIL;
+	}
+
+	if (prev_node == NULL)	/* node found is the first */
+		node_remove(cur_node, &(node_list->first));
+	else
+		node_remove(cur_node, &(prev_node->next));
+}
+
 status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id)
 {
 	node_t *cur_node;

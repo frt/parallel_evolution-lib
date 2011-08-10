@@ -21,13 +21,24 @@ void adjacency_list_remove(adjacency_list_t *adjacency_list, int node_id);
 status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array /* output */);
 /* --- adjacency_list end --- */
 
-/* --- node_list start --- */
+/* --- node start --- */
 typedef struct node {
 	int id;
 	adjacency_list_t *adjacency_list;
 	struct node *next;	
 } node_t;
 
+/**
+ * Remove a node from a linked list.
+ *
+ * @param to_remove node to be removed.
+ * @param prev_next next pointer of the node before to_remove.
+ */
+void node_remove(node_t *to_remove, node_t **prev_next);
+
+/* --- node end --- */
+
+/* --- node_list start --- */
 typedef struct node_list {
 	node_t *first;
 	node_t *last;
@@ -37,7 +48,7 @@ typedef struct node_list {
 status_t node_list_create(node_list_t **node_list);
 void node_list_destroy(node_list_t **node_list);
 status_t node_list_add(node_list_t *node_list, int id);
-/* TODO node_list_remove() */
+status_t node_list_remove(node_list_t *node_list, int id);
 status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id);
 /* TODO node_list_remove_adjacency() */
 status_t node_list_get_first(node_list_t *node_list, node_t **node);
