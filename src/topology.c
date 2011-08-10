@@ -99,6 +99,17 @@ status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array
 }
 /* --- adjacency_list end --- */
 
+/* --- node start --- */
+void node_remove(node_t *to_remove, node_t **prev_next)
+{
+	*prev_next = to_remove->next;
+
+	/* destroy node */
+	adjacency_list_destroy(&(to_remove->adjacency_list));
+	free(to_remove);
+}
+/* --- node end --- */
+
 /* --- node_list start --- */
 status_t node_list_create(node_list_t **node_list)
 {
@@ -158,15 +169,6 @@ status_t node_list_add(node_list_t *node_list, int id)
 	node_list->count += 1;
 
 	return SUCCESS;
-}
-
-void node_remove(node_t *to_remove, node_t **prev_next)
-{
-	*prev_next = to_remove->next;
-
-	/* destroy node */
-	adjacency_list_destroy(&(to_remove->adjacency_list));
-	free(to_remove);
 }
 
 status_t node_list_remove(node_list_t *node_list, int id)
