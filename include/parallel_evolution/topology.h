@@ -49,8 +49,9 @@ status_t node_list_create(node_list_t **node_list);
 void node_list_destroy(node_list_t **node_list);
 status_t node_list_add(node_list_t *node_list, int id);
 status_t node_list_remove(node_list_t *node_list, int id);
+node_t *node_list_find(node_list_t *node_list, int id);
 status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id);
-/* TODO node_list_remove_adjacency() */
+status_t node_list_remove_adjacency(node_list_t *node_list, int id, int adjacent_id);
 status_t node_list_get_first(node_list_t *node_list, node_t **node);
 status_t node_list_get_next(node_t **node);
 

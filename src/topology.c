@@ -193,19 +193,41 @@ status_t node_list_remove(node_list_t *node_list, int id)
 		node_remove(cur_node, &(prev_node->next));
 }
 
-status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id)
+node_t *node_list_find(node_list_t *node_list, int id)
 {
 	node_t *cur_node;
 
 	cur_node = node_list->first;
-	if (cur_node == NULL)	/* node list is empty */
-		return FAIL;
 	while (cur_node != NULL) {
 		if (cur_node->id == id)
-			return adjacency_list_add(cur_node->adjacency_list, adjacent_id);
+			return cur_node;
 		cur_node = cur_node->next;
 	}
-	return FAIL;	/* node with id doesn't exist */
+	return NULL;	/* node with id doesn't exist */
+}
+
+status_t node_list_add_adjacency(node_list_t *node_list, int id, int adjacent_id)
+{
+	node_t *node;
+
+	node = node_list_find(node_list, id);
+	if (node == NULL)	/* node not found */
+		return FAIL;
+	else
+		return adjacency_list_add(node->adjacency_list, adjacent_id);
+}
+
+status_t node_list_remove_adjacency(node_list_t *node_list, int id, int adjacent_id)
+{
+	node_t *node;
+
+	node = node_list_find(node_list, id);
+	if (node == NULL)	/* node not found */
+		return FAIL;
+	else {
+		adjacency_list_remove(node->adjacency_list, adjacent_id);
+		return SUCCESS;
+	}
 }
 
 status_t node_list_get_first(node_list_t *node_list, node_t **node)
