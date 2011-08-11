@@ -277,6 +277,11 @@ status_t topology_add_node(topology_t *topology, int node_id)
 	return node_list_add(topology->node_list, node_id);
 }
 
+status_t topology_remove_node(topology_t *topology, int node_id)
+{
+	return node_list_remove(topology->node_list, node_id);
+}
+
 status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_node_id)
 {
 	return node_list_add_adjacency(topology->node_list, node_id, adjacent_node_id);

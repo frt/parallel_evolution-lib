@@ -69,7 +69,7 @@ typedef struct topology {
 status_t topology_create(topology_t **topology);
 void topology_destroy(topology_t **topology);
 status_t topology_add_node(topology_t *topology, int node_id);
-/* TODO topology_remove_node() */
+status_t topology_remove_node(topology_t *topology, int node_id);
 status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_node_id);
 /* TODO topology_remove_adjacency() */
 status_t topology_get_first_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count /* output */);
