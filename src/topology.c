@@ -287,6 +287,11 @@ status_t topology_add_adjacency(topology_t *topology, int node_id, int adjacent_
 	return node_list_add_adjacency(topology->node_list, node_id, adjacent_node_id);
 }
 
+status_t topology_remove_adjacency(topology_t *topology, int node_id, int adjacent_node_id)
+{
+	return node_list_remove_adjacency(topology->node_list, node_id, adjacent_node_id);
+}
+
 status_t node_get(node_t *node, int *id /* output */, int **adjacency_array /* another output */, int *count)
 {
 	if (node == NULL)
