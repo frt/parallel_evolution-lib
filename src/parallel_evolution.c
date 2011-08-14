@@ -33,7 +33,7 @@ void topology_controller(int world_size)
 	populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
 	if (populations == NULL) {
 		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
-		return ERROR_POPULATIONS_ALLOC;
+		exit(ERROR_POPULATIONS_ALLOC);
 	}
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
@@ -67,18 +67,72 @@ void topology_controller(int world_size)
 	report_results(populations, world_size - 1);
 }
 
+void algorithm_executor(int rank)
+{
+	algorithm_t *algorithm;
+	migrant_t *migrant;
+	char log_msg[256];
+	int *adjacency_array = NULL;
+	int adjacency_array_size;
+	int stop_sending = 0;
+	int converged = 0;
+	population_t *my_population;
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
+	if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS) {
+		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get the algorithm. Quit...");
+		exit(ERROR_PROCESSES_GET_ALGORITHM);
+	}
+	algorithm->init();
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
+	migrant_create(&migrant, parallel_evolution.number_of_dimensions);
+	while (1) {
+		/* receive migrants */
+		while (mpi_util_recv_migrant(migrant) == SUCCESS) {
+			algorithm->insert_migrant(migrant);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant inserted into local population.");
+		}
+
+		/* run algorithm */
+		algorithm->run_iterations(parallel_evolution.migration_interval);
+		sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+
+		/* will need the adjacency array before sending migrants */
+		if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
+					"Adjacency list received.");
+
+		/* send migrant */
+		if (adjacency_array != NULL && !stop_sending) {
+			algorithm->pick_migrant(migrant);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
+			mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
+			stop_sending = mpi_util_recv_stop_sending();
+		}
+
+		/* report to master that the algorithm has converged */
+		if (!converged && algorithm->ended()) {
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
+			mpi_util_send_report_done();
+			converged = !converged;
+		}
+
+		/* if "finalize" msg received, send population and finalize */
+		if (converged && mpi_util_recv_finalize()) {
+			algorithm->get_population(&my_population);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
+			mpi_util_send_population(my_population);
+			break;
+		}
+	}
+}
+
 int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, world_size;
-	algorithm_t *algorithm;
-	migrant_t *migrant;
-	population_t *my_population;
-	int *adjacency_array = NULL;
-	int adjacency_array_size;
 	processes_t *processes;
 	char log_msg[256];
-	int converged = 0;
-	int stop_sending = 0;
 
 	MPI_Init(argc, argv);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI inicializado.");
@@ -91,55 +145,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 
 	if (rank == 0) {
 		topology_controller(world_size);
-	} else {	/* algorithm executor */
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
-		if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS) {
-			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get the algorithm. Quit...");
-			return ERROR_PROCESSES_GET_ALGORITHM;
-		}
-		algorithm->init();
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
-		migrant_create(&migrant, parallel_evolution.number_of_dimensions);
-		while (1) {
-			/* receive migrants */
-			while (mpi_util_recv_migrant(migrant) == SUCCESS) {
-				algorithm->insert_migrant(migrant);
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant inserted into local population.");
-			}
-
-			/* run algorithm */
-			algorithm->run_iterations(parallel_evolution.migration_interval);
-			sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
-
-			/* will need the adjacency array before sending migrants */
-			if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
-						"Adjacency list received.");
-
-			/* send migrant */
-			if (adjacency_array != NULL && !stop_sending) {
-				algorithm->pick_migrant(migrant);
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
-				mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
-				stop_sending = mpi_util_recv_stop_sending();
-			}
-
-			/* report to master that the algorithm has converged */
-			if (!converged && algorithm->ended()) {
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
-				mpi_util_send_report_done();
-				converged = !converged;
-			}
-
-			/* if "finalize" msg received, send population and finalize */
-			if (converged && mpi_util_recv_finalize()) {
-				algorithm->get_population(&my_population);
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
-				mpi_util_send_population(my_population);
-				break;
-			}
-		}
+	} else {
+		algorithm_executor(rank);
 	}
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI will be finalized.");
