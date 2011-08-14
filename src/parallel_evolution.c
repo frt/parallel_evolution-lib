@@ -131,7 +131,6 @@ void algorithm_executor(int rank)
 int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, world_size;
-	processes_t *processes;
 	char log_msg[256];
 
 	MPI_Init(argc, argv);
