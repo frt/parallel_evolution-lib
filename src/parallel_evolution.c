@@ -17,11 +17,59 @@
 
 parallel_evolution_t parallel_evolution;
 
+void topology_controller(int world_size)
+{
+	population_t **populations;
+	int done_count = 0;
+	int done_rank;
+	char log_msg[256];
+	int i;
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
+
+	mpi_util_send_topology(parallel_evolution.topology);	/* TODO Makes topology A-Changin and a change detector here */
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
+
+	populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
+	if (populations == NULL) {
+		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
+		return ERROR_POPULATIONS_ALLOC;
+	}
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
+	while (done_count < world_size - 1) {
+		done_rank = mpi_util_recv_report_done();
+		if (done_rank != 0) {
+			++done_count;
+			sprintf(log_msg, "Received report_done from process %d...", done_rank);
+			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+		}
+	}
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"stop_sending\" notifications...");
+	mpi_util_send_stop_sending();
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
+	mpi_util_send_finalize();
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
+	for (i = 1; i <= world_size - 1; ++i) {
+		sprintf(log_msg, "Receiving population from process %d...", i);
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+
+		mpi_util_recv_population(i, populations);
+
+		sprintf(log_msg, "Population from process %d received.", i);
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	}
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
+	report_results(populations, world_size - 1);
+}
+
 int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, world_size;
-	int i;
-	population_t **populations;
 	algorithm_t *algorithm;
 	migrant_t *migrant;
 	population_t *my_population;
@@ -31,8 +79,6 @@ int parallel_evolution_run(int *argc, char ***argv)
 	char log_msg[256];
 	int converged = 0;
 	int stop_sending = 0;
-	int done_count = 0;
-	int done_rank;
 
 	MPI_Init(argc, argv);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI inicializado.");
@@ -43,47 +89,8 @@ int parallel_evolution_run(int *argc, char ***argv)
 	sprintf (log_msg, "I am process %d of %d.", rank, world_size);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-	if (rank == 0) {	/* topology controller */
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
-
-		mpi_util_send_topology(parallel_evolution.topology);	/* TODO Makes topology A-Changin and a change detector here */
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
-
-		populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
-		if (populations == NULL) {
-			parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
-			return ERROR_POPULATIONS_ALLOC;
-		}
-
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
-		while (done_count < world_size - 1) {
-			done_rank = mpi_util_recv_report_done();
-			if (done_rank != 0) {
-				++done_count;
-				sprintf(log_msg, "Received report_done from process %d...", done_rank);
-				parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
-			}
-		}
-
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"stop_sending\" notifications...");
-		mpi_util_send_stop_sending();
-
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
-		mpi_util_send_finalize();
-
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
-		for (i = 1; i <= world_size - 1; ++i) {
-			sprintf(log_msg, "Receiving population from process %d...", i);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
-
-			mpi_util_recv_population(i, populations);
-
-			sprintf(log_msg, "Population from process %d received.", i);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
-		}
-
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
-		report_results(populations, world_size - 1);
+	if (rank == 0) {
+		topology_controller(world_size);
 	} else {	/* algorithm executor */
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
 		if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS) {
