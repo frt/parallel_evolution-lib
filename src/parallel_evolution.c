@@ -16,13 +16,13 @@
 #define MODULE_PARALLEL_EVOLUTION "parallel_evolution"
 
 parallel_evolution_t parallel_evolution;
+char log_msg[256];
 
 void topology_controller(int world_size)
 {
 	population_t **populations;
 	int done_count = 0;
 	int done_rank;
-	char log_msg[256];
 	int i;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
@@ -71,7 +71,6 @@ void algorithm_executor(int rank)
 {
 	algorithm_t *algorithm;
 	migrant_t *migrant;
-	char log_msg[256];
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
 	int stop_sending = 0;
@@ -131,7 +130,6 @@ void algorithm_executor(int rank)
 int parallel_evolution_run(int *argc, char ***argv)
 {
 	int rank, world_size;
-	char log_msg[256];
 
 	MPI_Init(argc, argv);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI inicializado.");
@@ -162,8 +160,6 @@ void parallel_evolution_set_topology(topology_t *topology)
 
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
 {
-	char log_msg[256];
-
 	parallel_evolution.number_of_dimensions = number_of_dimensions;
 
 	sprintf(log_msg, "Number of dimensions set to %d.", number_of_dimensions);
@@ -188,8 +184,6 @@ void parallel_evolution_create_processes(int number_of_islands)
 
 void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank)
 {
-	char log_msg[256];
-
 	processes_add_algorithm(parallel_evolution.processes, algorithm, first_rank, last_rank);
 
 	sprintf(log_msg, "Algorithm added to processes from %d to %d.", first_rank, last_rank);
