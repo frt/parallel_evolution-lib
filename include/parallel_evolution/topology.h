@@ -26,7 +26,7 @@ typedef struct node {
 	int id;
 	int iterations;
 	double avg_fitness;
-	double max_fitness;
+	double best_fitness;
 	adjacency_list_t *adjacency_list;
 	struct node *next;	
 } node_t;

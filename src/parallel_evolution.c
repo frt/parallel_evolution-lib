@@ -38,6 +38,7 @@ void topology_controller(int world_size)
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
 	while (done_count < world_size - 1) {
+		/* TODO receive stats here */
 		done_rank = mpi_util_recv_report_done();
 		if (done_rank != 0) {
 			++done_count;
@@ -96,6 +97,8 @@ void algorithm_executor(int rank)
 		algorithm->run_iterations(parallel_evolution.migration_interval);
 		sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+
+		/* TODO send stats here */
 
 		/* will need the adjacency array before sending migrants */
 		if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
