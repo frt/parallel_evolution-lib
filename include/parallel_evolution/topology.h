@@ -24,6 +24,9 @@ status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array
 /* --- node start --- */
 typedef struct node {
 	int id;
+	int iterations;
+	double avg_fitness;
+	double max_fitness;
 	adjacency_list_t *adjacency_list;
 	struct node *next;	
 } node_t;
