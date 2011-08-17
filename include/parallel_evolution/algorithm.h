@@ -4,7 +4,7 @@
 #include "migrant.h"
 #include "population.h"
 
-typedef struct altorithm {
+typedef struct algorithm {
 	void (*init)();
 	void (*run_iterations)(int iterations);
 	void (*insert_migrant)(migrant_t *migrant);
