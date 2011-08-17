@@ -38,7 +38,13 @@ void topology_controller(int world_size)
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
 	while (done_count < world_size - 1) {
-		/* TODO receive stats here */
+		/* TODO receive stats and change topology here */
+		/* mpi_util_recv_stats()
+		 * topology_update_stats()
+		 * (*)topology_changer()
+		 * topology_apply_operations()
+		 * mpi_util_send_topology_operations()
+		 */
 		done_rank = mpi_util_recv_report_done();
 		if (done_rank != 0) {
 			++done_count;
@@ -86,6 +92,13 @@ void algorithm_executor(int rank)
 	algorithm->init();
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
 	migrant_create(&migrant, parallel_evolution.number_of_dimensions);
+
+	/* waiting for the "signal" from the master to start */
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for the adjacency list.");
+	/* TODO make mpi_util_recv_adjacency_list() use a blocking recv, so this while is not needed */
+	while (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) != SUCCESS);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
+
 	while (1) {
 		/* receive migrants */
 		while (mpi_util_recv_migrant(migrant) == SUCCESS) {
@@ -98,12 +111,12 @@ void algorithm_executor(int rank)
 		sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-		/* TODO send stats here */
-
-		/* will need the adjacency array before sending migrants */
-		if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION,
-					"Adjacency list received.");
+		/* TODO send stats here 
+		 * algorithm_get_stats()
+		 * mpi_util_send_stats()
+		 * mpi_util_recv_topology_operations()
+		 * topology_apply_operations()
+		 */
 
 		/* send migrant */
 		if (adjacency_array != NULL && !stop_sending) {
