@@ -12,7 +12,8 @@ status_t algorithm_create(
 		void (*insert_migrant)(migrant_t *),
 		void (*pick_migrant)(migrant_t *),
 		int (*ended)(),
-		status_t (*get_population)(population_t **)
+		status_t (*get_population)(population_t **),
+		algorithm_stats_t *(*get_stats)()
 		)
 {
 	algorithm_t *new_algorithm;
@@ -30,6 +31,7 @@ status_t algorithm_create(
 	new_algorithm->pick_migrant = pick_migrant;
 	new_algorithm->ended = ended;
 	new_algorithm->get_population = get_population;
+	new_algorithm->get_stats = get_stats;
 
 	*algorithm = new_algorithm;
 

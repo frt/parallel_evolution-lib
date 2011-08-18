@@ -77,6 +77,7 @@ void topology_controller(int world_size)
 void algorithm_executor(int rank)
 {
 	algorithm_t *algorithm;
+	algorithm_stats_t *algorithm_stats;
 	migrant_t *migrant;
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
@@ -111,9 +112,15 @@ void algorithm_executor(int rank)
 		sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-		/* TODO send stats here 
-		 * algorithm_get_stats()
-		 * mpi_util_send_stats()
+		/* colect and send stats */
+		algorithm_stats = algorithm->get_stats();
+		if (algorithm_stats != NULL) {
+			mpi_util_send_stats(algorithm_stats);
+			free(algorithm_stats);
+			algorithm_stats = NULL;
+		}
+
+		/* TODO recv topology_operations
 		 * mpi_util_recv_topology_operations()
 		 * topology_apply_operations()
 		 */

@@ -158,7 +158,7 @@ status_t node_list_add(node_list_t *node_list, int id)
 		return FAIL;
 	}
 	new_node->id = id;
-	new_node->iterations = 0;
+	new_node->algorithm_stats.iterations = 0;
 	new_node->next = NULL;
 
 	if (node_list->first == NULL) {

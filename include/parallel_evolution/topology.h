@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "algorithm.h"
 
 /* --- adjacency_list start --- */
 typedef struct adjacency {
@@ -24,9 +25,7 @@ status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array
 /* --- node start --- */
 typedef struct node {
 	int id;
-	int iterations;
-	double avg_fitness;
-	double best_fitness;
+	algorithm_stats_t algorithm_stats;
 	adjacency_list_t *adjacency_list;
 	struct node *next;	
 } node_t;

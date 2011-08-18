@@ -299,3 +299,8 @@ void mpi_util_send_stop_sending()
 {
 	mpi_util_send_tag_from_master_to_all(TAG_STOP_SENDING, "stop_sending");
 }
+
+void mpi_util_send_stats(algorithm_stats_t *algorithm_stats)
+{
+	/* TODO send algorithm_stats from slave to master */
+}
