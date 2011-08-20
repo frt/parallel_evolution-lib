@@ -12,3 +12,12 @@ status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_arra
 status_t mpi_util_recv_migrant(migrant_t *migrant);
 status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adjacency_array_size);
 status_t mpi_util_send_stats(algorithm_stats_t *algorithm_stats);
+
+/**
+ * Receive algorithm_stats from a algorithm executor.
+ *
+ * \param[out] algorithm_stats The var that will receive the stats.
+ * \param[out] rank The rank of the processes that sended the stats.
+ * \return Status: FAIL if could not get any stats, SUCCESS if it could.
+ */
+status_t mpi_util_recv_stats(algorithm_stats_t *algorithm_stats, int *rank);

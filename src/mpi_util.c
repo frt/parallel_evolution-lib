@@ -341,9 +341,33 @@ status_t mpi_util_send_stats(algorithm_stats_t *algorithm_stats)
 	if (algorithm_stats_MPI_type == NULL)
 		return FAIL;
 
-	MPI_Send(algorithm_stats, 1, algorithm_stats_MPI_type, 0, TAG_STATS, MPI_COMM_WORLD);
+	MPI_Send(algorithm_stats, 1, *algorithm_stats_MPI_type, 0, TAG_STATS, MPI_COMM_WORLD);
 
 	return SUCCESS;
 }
 
-/* TODO mpi_util_recv_stats */
+status_t mpi_util_recv_stats(algorithm_stats_t *algorithm_stats, int *rank)
+{
+	MPI_Datatype *algorithm_stats_MPI_type;
+	int has_msg = 0;
+	MPI_Status status;
+	
+	algorithm_stats_MPI_type = mpi_util_get_algorithm_stats_MPI_type();
+	if (algorithm_stats_MPI_type == NULL)
+		return FAIL;
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for algorithm_stats to receive...");
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_STATS, MPI_COMM_WORLD, &has_msg, &status);
+	if (!has_msg) {
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no algorithm_stats to receive.");
+		return FAIL;
+	}
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There is a algorithm_stats to receive!");
+
+	MPI_Recv(algorithm_stats, 1, *algorithm_stats_MPI_type, status.MPI_SOURCE, TAG_STATS,
+			MPI_COMM_WORLD,	&status);
+	*rank = status.MPI_SOURCE;
+
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "algorithm_stats received.");
+	return SUCCESS;
+}
