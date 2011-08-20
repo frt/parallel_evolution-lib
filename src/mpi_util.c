@@ -301,28 +301,49 @@ void mpi_util_send_stop_sending()
 	mpi_util_send_tag_from_master_to_all(TAG_STOP_SENDING, "stop_sending");
 }
 
-void mpi_util_send_stats(algorithm_stats_t *algorithm_stats)
+MPI_Datatype *mpi_util_get_algorithm_stats_MPI_type()
 {
-	MPI_Datatype algorithm_stats_MPI_type;
+	static MPI_Datatype *algorithm_stats_MPI_type = NULL;
+
 	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
 	int blocklengths[3] = {1, 1, 1};
 	MPI_Aint displacements[3];
 	int i;
+	int struct_start;	/* should be equal to displacement[0], but who knows... */
+	algorithm_stats_t algorithm_stats;
+
+	if (algorithm_stats_MPI_type != NULL)
+		return algorithm_stats_MPI_type;
+
+	/* allocate a MPI type */
+	algorithm_stats_MPI_type = (MPI_Datatype *)malloc(sizeof(MPI_Datatype));
+	if (algorithm_stats_MPI_type == NULL)
+		return NULL;
 
 	/* create a MPI type */
-	MPI_Address(&(algorithm_stats->iterations), &displacements[0]);
-	MPI_Address(&(algorithm_stats->avg_fitness), &displacements[1]);
-	MPI_Address(&(algorithm_stats->best_fitness), &displacements[2]);
+	MPI_Get_address(&algorithm_stats, &struct_start);
+	MPI_Get_address(&algorithm_stats.iterations, &displacements[0]);
+	MPI_Get_address(&algorithm_stats.avg_fitness, &displacements[1]);
+	MPI_Get_address(&algorithm_stats.best_fitness, &displacements[2]);
 	for (i = 2; i >= 0; --i)
-		displacements[i] -= displacements[0];
-	MPI_Type_struct(3, blocklengths, displacements, types, &algorithm_stats_MPI_type);
-	MPI_Type_commit(&algorithm_stats_MPI_type);
+		displacements[i] -= struct_start;
+	MPI_Type_create_struct(3, blocklengths, displacements, types, algorithm_stats_MPI_type);
+	MPI_Type_commit(algorithm_stats_MPI_type);
 
-	/* send the msg */
+	return algorithm_stats_MPI_type;
+}
+
+status_t mpi_util_send_stats(algorithm_stats_t *algorithm_stats)
+{
+	MPI_Datatype *algorithm_stats_MPI_type;
+	
+	algorithm_stats_MPI_type = mpi_util_get_algorithm_stats_MPI_type();
+	if (algorithm_stats_MPI_type == NULL)
+		return FAIL;
+
 	MPI_Send(algorithm_stats, 1, algorithm_stats_MPI_type, 0, TAG_STATS, MPI_COMM_WORLD);
 
-	/* deallocates the MPI type */
-	MPI_Type_free(&algorithm_stats_MPI_type);
+	return SUCCESS;
 }
 
 /* TODO mpi_util_recv_stats */

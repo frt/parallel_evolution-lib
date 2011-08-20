@@ -11,4 +11,4 @@ status_t mpi_util_send_population(population_t *population);
 status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_array_size);
 status_t mpi_util_recv_migrant(migrant_t *migrant);
 status_t mpi_util_send_migrant(migrant_t *migrant, int *adjacency_array, int adjacency_array_size);
-void mpi_util_send_stats(algorithm_stats_t *algorithm_stats);
+status_t mpi_util_send_stats(algorithm_stats_t *algorithm_stats);
