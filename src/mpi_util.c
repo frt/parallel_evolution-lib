@@ -18,6 +18,7 @@
 #define TAG_REPORT_DONE 6
 #define TAG_FINALIZE 7
 #define TAG_STOP_SENDING 8
+#define TAG_STATS 9
 
 #define MODULE_MPI_UTIL "mpi_util"
 
@@ -302,5 +303,26 @@ void mpi_util_send_stop_sending()
 
 void mpi_util_send_stats(algorithm_stats_t *algorithm_stats)
 {
-	/* TODO send algorithm_stats from slave to master */
+	MPI_Datatype algorithm_stats_MPI_type;
+	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
+	int blocklengths[3] = {1, 1, 1};
+	MPI_Aint displacements[3];
+	int i;
+
+	/* create a MPI type */
+	MPI_Address(&(algorithm_stats->iterations), &displacements[0]);
+	MPI_Address(&(algorithm_stats->avg_fitness), &displacements[1]);
+	MPI_Address(&(algorithm_stats->best_fitness), &displacements[2]);
+	for (i = 2; i >= 0; --i)
+		displacements[i] -= displacements[0];
+	MPI_Type_struct(3, blocklengths, displacements, types, &algorithm_stats_MPI_type);
+	MPI_Type_commit(&algorithm_stats_MPI_type);
+
+	/* send the msg */
+	MPI_Send(algorithm_stats, 1, algorithm_stats_MPI_type, 0, TAG_STATS, MPI_COMM_WORLD);
+
+	/* deallocates the MPI type */
+	MPI_Type_free(&algorithm_stats_MPI_type);
 }
+
+/* TODO mpi_util_recv_stats */
