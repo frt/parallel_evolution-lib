@@ -24,10 +24,12 @@ void topology_controller(int world_size)
 	int done_count = 0;
 	int done_rank;
 	int i;
+	algorithm_stats_t algorithm_stats;
+	int stats_node;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
 
-	mpi_util_send_topology(parallel_evolution.topology);	/* TODO Makes topology A-Changin and a change detector here */
+	mpi_util_send_topology(parallel_evolution.topology);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
 
 	populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
@@ -39,12 +41,14 @@ void topology_controller(int world_size)
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
 	while (done_count < world_size - 1) {
 		/* TODO receive stats and change topology here */
-		/* mpi_util_recv_stats()
-		 * topology_update_stats()
-		 * (*)topology_changer()
-		 * topology_apply_operations()
-		 * mpi_util_send_topology_operations()
-		 */
+		if (SUCCESS == mpi_util_recv_stats(&algorithm_stats, &stats_node)) {
+			topology_update_stats(parallel_evolution.topology, stats_node, &algorithm_stats);
+			/* TODO
+			 * (*)topology_changer()
+			 * topology_apply_operations()
+			 * mpi_util_send_topology_operations()
+			 */
+		}
 		done_rank = mpi_util_recv_report_done();
 		if (done_rank != 0) {
 			++done_count;

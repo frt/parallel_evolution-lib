@@ -314,4 +314,16 @@ status_t topology_get_next_node(topology_t *topology, int *node_id /* output */,
 	topology->current_node = topology->current_node->next;
 	return node_get(topology->current_node, node_id, adjacency_array, count);
 }
+
+void topology_update_stats(topology_t *topology, int node_id, algorithm_stats_t *algorithm_stats)
+{
+	node_t *node_to_update;
+	
+	node_to_update = node_list_find(topology->node_list, node_id);
+	if (node_to_update != NULL) {
+		node_to_update->algorithm_stats.iterations = algorithm_stats->iterations;
+		node_to_update->algorithm_stats.avg_fitness = algorithm_stats->avg_fitness;
+		node_to_update->algorithm_stats.best_fitness = algorithm_stats->best_fitness;
+	}
+}
 /* --- topology end --- */
