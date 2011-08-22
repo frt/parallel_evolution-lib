@@ -43,8 +43,8 @@ void topology_controller(int world_size)
 		/* TODO receive stats and change topology here */
 		if (SUCCESS == mpi_util_recv_stats(&algorithm_stats, &stats_node)) {
 			topology_update_stats(parallel_evolution.topology, stats_node, &algorithm_stats);
+			parallel_evolution.topology_changer(parallel_evolution.topology)
 			/* TODO
-			 * (*)topology_changer()
 			 * topology_apply_operations()
 			 * mpi_util_send_topology_operations()
 			 */

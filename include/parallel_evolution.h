@@ -17,6 +17,16 @@ typedef struct parallel_evolution {
 	topology_t *topology;
 	int number_of_dimensions;
 
+	/**
+	 * Pointer to function that receives a topology and returns a set of topology_operations.
+	 *
+	 * \param[in] topology Topology with stats.
+	 * \param[out] topology_operation_array Changes to make to the topology.
+	 * \param[out] number_of_operations Size of the array of changes.
+	 */
+	void (*topology_changer)(topology_t *topology, topology_operation_t **topology_operation_array, 
+			int *number_of_operations);
+
 	/* used on algorithm runners */
 	algorithm_t **algorithms;
 	processes_t *processes;
