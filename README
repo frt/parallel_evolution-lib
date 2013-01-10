@@ -1,0 +1,24 @@
+Parallel Evolution Library
+
+Library to ease the implementation of evolutionary algorithms
+[http://en.wikipedia.org/wiki/Evolutionary_computation] that use MPI
+[http://en.wikipedia.org/wiki/Message_Passing_Interface] for its
+parallelization [http://en.wikipedia.org/wiki/Parallel_computing].
+
+Multiple different evolutionary algorithms can run in parallel and exchange
+candidate solutions with each other.
+
+
+HOWTO INSTALL THIS LIB FROM THE SOURCES 
+
+ * Generate the './configure' script:
+
+	$ aclocal
+	$ automake --add-missing
+	$ autoconf
+
+ * Configure and install:
+
+	$ ./configure
+	$ make
+	# make install
