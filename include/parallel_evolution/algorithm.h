@@ -20,6 +20,20 @@ typedef struct algorithm {
 	algorithm_stats_t *(*get_stats)();
 } algorithm_t;
 
+/**
+ * Creates a data structure representing an optimization algorithm.
+ *
+ * \param[out] algorithm The pointer that will receive the algorithm data structure.
+ * \param init Function that do the initialization of the algorithm.
+ * \param run_iterations Function that runs a number of iterations of the algorithm.
+ * \param insert_migrant Function that inserts a candidate solution into the algorithm.
+ * \param pick_migrant Function that returns a candidate solution from the algorithm.
+ * \param ended Function that returns a value diferent than 0 if the algorithm has ended, generally based on convergence or precision.
+ * \param get_population Function that returns all the candidate soluitons of the algorithm at the moment.
+ * \param get_stats Function that returns the algorithm statistics.
+ *
+ * \return Status: FAIL if fails to create the algorithm data structure, SUCCESS otherwise.
+ */
 status_t algorithm_create(
 		algorithm_t **algorithm,
 		void (*init)(),
@@ -30,4 +44,5 @@ status_t algorithm_create(
 		status_t (*get_population)(population_t **),
 		algorithm_stats_t *(*get_stats)()
 		);
+
 void algorithm_destroy(algorithm_t **algorithm);
