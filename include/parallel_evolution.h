@@ -24,8 +24,8 @@ typedef struct parallel_evolution {
 	 * \param[out] topology_operation_array Changes to make to the topology.
 	 * \param[out] number_of_operations Size of the array of changes.
 	 */
-	void (*topology_changer)(topology_t *topology, topology_operation_t **topology_operation_array, 
-			int *number_of_operations);
+	/* TODO void (*topology_changer)(topology_t *topology, topology_operation_t **topology_operation_array, 
+			int *number_of_operations); */
 
 	/* used on algorithm runners */
 	algorithm_t **algorithms;
