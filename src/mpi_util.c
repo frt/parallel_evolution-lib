@@ -129,16 +129,6 @@ status_t mpi_util_send_population(population_t *population)
 
 status_t mpi_util_recv_adjacency_list(int **adjacency_array, int *adjacency_array_size)
 {
-	int has_msg = 0;
-
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Probing for adjacency list to receive...");
-	MPI_Iprobe(0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, &has_msg,
-			MPI_STATUS_IGNORE);
-	if (!has_msg) {
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "There's no adjacency list to receive.");
-		return FAIL;
-	}
-	
 	MPI_Recv(adjacency_array_size, 1, MPI_INT, 0, TAG_ADJACENCY_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Adjacency size received.");
 	

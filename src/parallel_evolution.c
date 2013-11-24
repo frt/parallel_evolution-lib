@@ -100,9 +100,10 @@ void algorithm_executor(int rank)
 
 	/* waiting for the "signal" from the master to start */
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for the adjacency list.");
-	/* TODO make mpi_util_recv_adjacency_list() use a blocking recv, so this while is not needed */
-	while (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) != SUCCESS);
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
+	if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
+		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
+	else
+		parallel_evolution_log(SEVERITY_WARNING, MODULE_PARALLEL_EVOLUTION, "Adjacency list not received. Working without this.");
 
 	while (1) {
 		/* receive migrants */
