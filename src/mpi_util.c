@@ -299,7 +299,7 @@ MPI_Datatype *mpi_util_get_algorithm_stats_MPI_type()
 	int blocklengths[3] = {1, 1, 1};
 	MPI_Aint displacements[3];
 	int i;
-	int struct_start;	/* should be equal to displacement[0], but who knows... */
+	MPI_Aint struct_start;	/* should be equal to displacement[0], but who knows... */
 	algorithm_stats_t algorithm_stats;
 
 	if (algorithm_stats_MPI_type != NULL)

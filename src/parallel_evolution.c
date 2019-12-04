@@ -1,5 +1,7 @@
 #include "config.h"
 #include "parallel_evolution.h"
+#include "parallel_evolution/mpi_util.h"
+#include "parallel_evolution/report.h"
 #if HAVE_MPI_H 
 	#include <mpi.h>
 #elif HAVE_MPI_MPI_H
@@ -81,7 +83,7 @@ void topology_controller(int world_size)
 void algorithm_executor(int rank)
 {
 	algorithm_t *algorithm;
-	algorithm_stats_t *algorithm_stats;
+	algorithm_stats_t *algorithm_stats = NULL;
 	migrant_t *migrant;
 	int *adjacency_array = NULL;
 	int adjacency_array_size;
@@ -118,7 +120,8 @@ void algorithm_executor(int rank)
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
 		/* colect and send stats */
-		algorithm_stats = algorithm->get_stats();
+                if (algorithm->get_stats != NULL)
+                    algorithm_stats = algorithm->get_stats();
 		if (algorithm_stats != NULL) {
 			mpi_util_send_stats(algorithm_stats);
 			free(algorithm_stats);

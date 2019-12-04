@@ -30,3 +30,10 @@ status_t mpi_util_send_stats(algorithm_stats_t *algorithm_stats);
  * \return Status: FAIL if could not get any stats, SUCCESS if it could.
  */
 status_t mpi_util_recv_stats(algorithm_stats_t *algorithm_stats, int *rank);
+
+int mpi_util_recv_report_done();
+void mpi_util_send_stop_sending();
+void mpi_util_send_finalize();
+int mpi_util_recv_stop_sending();
+void mpi_util_send_report_done();
+int mpi_util_recv_finalize();
