@@ -94,7 +94,7 @@ status_t mpi_util_recv_population(int rank, population_t *populations[])
 
 	free(msg_array);
 
-	populations[rank - 1] = recv_population;
+	populations[rank] = recv_population;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_MPI_UTIL, "Population struct received.");
 	return SUCCESS;

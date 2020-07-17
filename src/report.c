@@ -9,7 +9,8 @@ void report_results(population_t **populations, int size)
 
 	printf("best population for each algorithm:\n");
 	for (i = 0; i < size; ++i) {
-		printf("\tpopulation from process with rank %d:\n", i + 1);
+		printf("\tpopulation from process with rank %d:\n", i);
+        // TODO: report stats
 		for (j = 0; j < populations[i]->size; ++j) {
 			printf("\t\t(");
 			for (k = 0; k < parallel_evolution.number_of_dimensions; ++k) {

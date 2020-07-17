@@ -28,29 +28,30 @@ void topology_controller(int world_size)
 	int i;
 	algorithm_stats_t algorithm_stats;
 	int stats_node;
+    algorithm_t *algorithm;
+    population_t *my_population;
 
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am the master of topologies!");
+	if (parallel_evolution.algorithm == NULL) {
+		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get my algorithm. Quit...");
+		exit(ERROR_PROCESSES_GET_ALGORITHM);
+	} else
+        algorithm = parallel_evolution.algorithm;
+    algorithm->get_population(&my_population);
 
-	mpi_util_send_topology(parallel_evolution.topology);
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Topology sent to executors. I don't need it anymore. Destroy!");
-
-	populations = (population_t **)malloc((world_size - 1) * sizeof(population_t *));
+	populations = (population_t **)malloc(world_size * sizeof(population_t *));
 	if (populations == NULL) {
 		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of populations. Quit.");
 		exit(ERROR_POPULATIONS_ALLOC);
 	}
+	populations[0] = my_population;
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for convergence...");
 	while (done_count < world_size - 1) {
-		/* TODO receive stats and change topology here */
+        /* TODO: recv stats
 		if (SUCCESS == mpi_util_recv_stats(&algorithm_stats, &stats_node)) {
 			topology_update_stats(parallel_evolution.topology, stats_node, &algorithm_stats);
-			/* TODO parallel_evolution.topology_changer(parallel_evolution.topology) */
-			/* TODO
-			 * topology_apply_operations()
-			 * mpi_util_send_topology_operations()
-			 */
 		}
+        */
 		done_rank = mpi_util_recv_report_done();
 		if (done_rank != 0) {
 			++done_count;
@@ -66,7 +67,7 @@ void topology_controller(int world_size)
 	mpi_util_send_finalize();
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
-	for (i = 1; i <= world_size - 1; ++i) {
+	for (i = 1; i < world_size; ++i) {
 		sprintf(log_msg, "Receiving population from process %d...", i);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
@@ -77,7 +78,8 @@ void topology_controller(int world_size)
 	}
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
-	report_results(populations, world_size - 1);
+	report_results(populations, world_size);
+    // TODO: report stats
 }
 
 void algorithm_executor(int rank)
@@ -85,27 +87,32 @@ void algorithm_executor(int rank)
 	algorithm_t *algorithm;
 	algorithm_stats_t *algorithm_stats = NULL;
 	migrant_t *migrant;
-	int *adjacency_array = NULL;
-	int adjacency_array_size;
-	int stop_sending = 0;
+
+    int stop_sending = 0;
 	int converged = 0;
 	population_t *my_population;
 
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "I am an algorithm executor!");
-	if (processes_get_algorithm(parallel_evolution.processes, &algorithm, rank) != SUCCESS) {
+	int *adjacency_array = NULL;
+	int adjacency_array_size;
+	int node_id;
+	status_t ret;
+
+	ret = topology_get_first_node(parallel_evolution.topology, &node_id, &adjacency_array, &adjacency_array_size);
+	while (ret == SUCCESS) {
+        if (node_id == rank)
+            break;
+		ret = topology_get_next_node(parallel_evolution.topology, &node_id, &adjacency_array, &adjacency_array_size);
+	}
+
+	if (parallel_evolution.algorithm == NULL) {
 		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Could not get the algorithm. Quit...");
 		exit(ERROR_PROCESSES_GET_ALGORITHM);
-	}
+	} else
+        algorithm = parallel_evolution.algorithm;
+
 	algorithm->init();
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm initialized.");
 	migrant_create(&migrant, parallel_evolution.number_of_dimensions);
-
-	/* waiting for the "signal" from the master to start */
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting for the adjacency list.");
-	if (mpi_util_recv_adjacency_list(&adjacency_array, &adjacency_array_size) == SUCCESS)
-		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Adjacency list received.");
-	else
-		parallel_evolution_log(SEVERITY_WARNING, MODULE_PARALLEL_EVOLUTION, "Adjacency list not received. Working without this.");
 
 	while (1) {
 		/* receive migrants */
@@ -119,20 +126,6 @@ void algorithm_executor(int rank)
 		sprintf(log_msg, "Algorithm has runned for %d iterations.", parallel_evolution.migration_interval);
 		parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-		/* colect and send stats */
-                if (algorithm->get_stats != NULL)
-                    algorithm_stats = algorithm->get_stats();
-		if (algorithm_stats != NULL) {
-			mpi_util_send_stats(algorithm_stats);
-			free(algorithm_stats);
-			algorithm_stats = NULL;
-		}
-
-		/* TODO recv topology_operations
-		 * mpi_util_recv_topology_operations()
-		 * topology_apply_operations()
-		 */
-
 		/* send migrant */
 		if (adjacency_array != NULL && !stop_sending) {
 			algorithm->pick_migrant(migrant);
@@ -141,20 +134,37 @@ void algorithm_executor(int rank)
 			stop_sending = mpi_util_recv_stop_sending();
 		}
 
-		/* report to master that the algorithm has converged */
-		if (!converged && algorithm->ended()) {
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
-			mpi_util_send_report_done();
-			converged = !converged;
-		}
+        /* report to master that the algorithm has converged */
+        if (!converged && algorithm->ended()) {
+            parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm ended.");
+            if (rank != 0) mpi_util_send_report_done();
+            converged = !converged;
+        }
 
-		/* if "finalize" msg received, send population and finalize */
-		if (converged && mpi_util_recv_finalize()) {
-			algorithm->get_population(&my_population);
-			parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
-			mpi_util_send_population(my_population);
-			break;
+        if (converged) {
+            if (rank == 0) {
+                break;
+            }
+
+            /* if "finalize" msg received, send population and finalize */
+            if (mpi_util_recv_finalize()) {
+                algorithm->get_population(&my_population);
+                parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
+                mpi_util_send_population(my_population);
+
+		/* colect and send stats */
+        /* TODO: send after end
+        if (algorithm->get_stats != NULL)
+            algorithm_stats = algorithm->get_stats();
+		if (algorithm_stats != NULL) {
+			mpi_util_send_stats(algorithm_stats);
+			free(algorithm_stats);
+			algorithm_stats = NULL;
 		}
+        */
+                break;
+            }
+        }
 	}
 }
 
@@ -171,11 +181,9 @@ int parallel_evolution_run(int *argc, char ***argv)
 	sprintf (log_msg, "I am process %d of %d.", rank, world_size);
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-	if (rank == 0) {
+    algorithm_executor(rank);
+	if (rank == 0)
 		topology_controller(world_size);
-	} else {
-		algorithm_executor(rank);
-	}
 
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI will be finalized.");
 	MPI_Finalize();
@@ -197,31 +205,15 @@ void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
 	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 }
 
-void parallel_evolution_create_processes(int number_of_islands)
+void parallel_evolution_set_algorithm(algorithm_t *algorithm)
 {
-	status_t ret;
-	int world_size;
-	
-	world_size = number_of_islands + 1;
-	ret = processes_create(&(parallel_evolution.processes), world_size - 1);
+    parallel_evolution.algorithm = algorithm;
 
-	if (ret != SUCCESS) {
-		parallel_evolution_log(SEVERITY_ERROR, MODULE_PARALLEL_EVOLUTION, "Processes struct could not be created.");
-		exit(ERROR_PROCESSES_CREATE);
-	}
-
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Processes struct created.");
-}
-
-void parallel_evolution_add_algorithm(algorithm_t *algorithm, int first_rank, int last_rank)
-{
-	processes_add_algorithm(parallel_evolution.processes, algorithm, first_rank, last_rank);
-
-	sprintf(log_msg, "Algorithm added to processes from %d to %d.", first_rank, last_rank);
-	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Algorithm set.");
 }
 
 void parallel_evolution_set_migration_interval(int iterations)
 {
 	parallel_evolution.migration_interval = iterations;
+	parallel_evolution_log(SEVERITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Interval set.");
 }

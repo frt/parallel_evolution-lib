@@ -24,7 +24,7 @@ void parallel_evolution_log(severity_t severity, const char *module_name, const 
 	MPI_Finalized(&is_mpi_finalized);
 	if (is_mpi_initialized && !is_mpi_finalized) {
 		MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
-		if (process_rank != 0) fprintf(stderr, "%s: %s: process %d: %s\n", severity_names[severity], module_name, process_rank, msg);
+		fprintf(stderr, "%s: %s: process %d: %s\n", severity_names[severity], module_name, process_rank, msg);
 	} else
 		fprintf(stderr, "%s: %s: %s\n", severity_names[severity], module_name, msg);
 }
