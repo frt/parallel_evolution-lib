@@ -2,10 +2,14 @@
 
 #include "common.h"
 #include "migrant.h"
+#include "algorithm.h"
+
+typedef struct algorithm_stats algorithm_stats_t;
 
 typedef struct population {
 	migrant_t **individuals;
 	int size;
+	algorithm_stats_t *stats;
 } population_t;
 
 status_t population_create(population_t **population, int size);

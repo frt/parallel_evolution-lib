@@ -4,6 +4,8 @@
 #include "migrant.h"
 #include "population.h"
 
+typedef struct population population_t;
+
 typedef struct algorithm_stats {
 	int iterations;
 	double avg_fitness;

@@ -25,7 +25,6 @@ status_t adjacency_list_get_all(adjacency_list_t *adjacency_list, int **id_array
 /* --- node start --- */
 typedef struct node {
 	int id;
-	algorithm_stats_t algorithm_stats;
 	adjacency_list_t *adjacency_list;
 	struct node *next;	
 } node_t;
@@ -78,6 +77,5 @@ status_t topology_get_first_node(topology_t *topology, int *node_id /* output */
 
 /* will return FAIL after the end */
 status_t topology_get_next_node(topology_t *topology, int *node_id /* output */, int **adjacency_array /* another output */, int *count /* output */);
-void topology_update_stats(topology_t *topology, int node_id, algorithm_stats_t *algorithm_stats);
 
 /* --- topology end --- */
