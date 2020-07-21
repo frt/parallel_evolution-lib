@@ -241,7 +241,7 @@ int mpi_util_recv_tag(int tag, const char *tag_name, int source)
 int mpi_util_recv_tag_blocking(int tag, const char *tag_name, int source)
 {
 	char log_msg[256];
-	int ret;
+	MPI_Status status;
 
     if (source == MPI_ANY_SOURCE) {
         sprintf (log_msg, "Waiting for a \"%s\" from process %d to receive...", tag_name, source);
@@ -249,10 +249,10 @@ int mpi_util_recv_tag_blocking(int tag, const char *tag_name, int source)
         sprintf (log_msg, "Waiting for a \"%s\" to receive...", tag_name);
     }
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_MPI_UTIL, log_msg);
-    ret = MPI_Recv(NULL, 0, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(NULL, 0, MPI_CHAR, source, tag, MPI_COMM_WORLD, &status);
     sprintf (log_msg, "\"%s\" received.", tag_name);
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_MPI_UTIL, log_msg);
-    return  ret;
+    return  status.MPI_SOURCE;
 }
 
 void mpi_util_send_tag(int tag, const char *tag_name, int dest)
