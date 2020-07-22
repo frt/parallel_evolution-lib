@@ -8,6 +8,7 @@ typedef struct population population_t;
 
 typedef struct algorithm_stats {
 	int iterations;
+    int fitness_evals;
 	double avg_fitness;
 	double best_fitness;
 } algorithm_stats_t;
