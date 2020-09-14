@@ -13,6 +13,7 @@ HOWTO INSTALL THIS LIB FROM THE SOURCES
 
  * Generate the './configure' script:
 
+	$ libtoolize
 	$ aclocal
 	$ autoheader
 	$ autoconf

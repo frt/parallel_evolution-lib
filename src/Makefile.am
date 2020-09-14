@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/include
-lib_LIBRARIES = libparallel_evolution.a
-libparallel_evolution_a_SOURCES = algorithm.c \
+lib_LTLIBRARIES = libparallel_evolution.la
+libparallel_evolution_la_SOURCES = algorithm.c \
 				  log.c \
 				  migrant.c \
 				  mpi_util.c \
