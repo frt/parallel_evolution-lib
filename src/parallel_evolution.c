@@ -52,9 +52,6 @@ void algorithm_totalizer(int world_size)
         parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 	}
 
-	parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"stop_sending\" notifications...");
-	mpi_util_send_stop_sending();
-
 	parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
 	mpi_util_send_finalize();
 
@@ -94,7 +91,6 @@ void algorithm_executor(int rank)
 	algorithm_stats_t *algorithm_stats = NULL;
 	migrant_t *migrant;
 
-    int stop_sending = 0;
 	int converged = 0;
 	population_t *my_population;
 
@@ -134,11 +130,10 @@ void algorithm_executor(int rank)
             parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
             /* send migrant */
-            if (adjacency_array != NULL && !stop_sending) {
+            if (adjacency_array != NULL) {
                 algorithm->pick_migrant(migrant);
                 parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Migrant picked up from local population to send to other processes.");
                 mpi_util_send_migrant(migrant, adjacency_array, adjacency_array_size);
-                stop_sending = mpi_util_recv_stop_sending();
             }
 
             /* report to master that the algorithm has converged */

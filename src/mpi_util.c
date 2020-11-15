@@ -298,16 +298,6 @@ void mpi_util_send_finalize()
 	mpi_util_send_tag_from_master_to_all(TAG_FINALIZE, "finalize");
 }
 
-int mpi_util_recv_stop_sending()
-{
-    return mpi_util_recv_tag(TAG_STOP_SENDING, "stop_sending", 0);
-}
-
-void mpi_util_send_stop_sending() 
-{
-	mpi_util_send_tag_from_master_to_all(TAG_STOP_SENDING, "stop_sending");
-}
-
 MPI_Datatype *mpi_util_get_algorithm_stats_MPI_type()
 {
 	static MPI_Datatype *algorithm_stats_MPI_type = NULL;

@@ -17,3 +17,11 @@ config.status
 stamp-h1
 ar-lib
 compile
+config.guess
+config.sub
+ltmain.sh
+m4/
+*.la
+*.lo
+libtool
+src/.libs/
