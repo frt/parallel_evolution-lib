@@ -16,8 +16,6 @@
 #define TAG_POPULATION 4
 #define TAG_MIGRANT 5
 #define TAG_REPORT_DONE 6
-#define TAG_FINALIZE 7
-#define TAG_STOP_SENDING 8
 #define TAG_STATS 9
 
 #define MODULE_MPI_UTIL "mpi_util"
@@ -278,11 +276,6 @@ void mpi_util_send_report_done()
 	mpi_util_send_tag(TAG_REPORT_DONE, "report_done", 0);
 }
 
-int mpi_util_recv_finalize()
-{
-	return mpi_util_recv_tag_blocking(TAG_FINALIZE, "finalize", 0);
-}
-
 void mpi_util_send_tag_from_master_to_all(int tag, const char *tag_name)
 {
 	int dest, world_size;
@@ -291,11 +284,6 @@ void mpi_util_send_tag_from_master_to_all(int tag, const char *tag_name)
 	for (dest = 1; dest < world_size; ++dest) {
 		mpi_util_send_tag(tag, tag_name, dest);
 	}
-}
-
-void mpi_util_send_finalize()
-{
-	mpi_util_send_tag_from_master_to_all(TAG_FINALIZE, "finalize");
 }
 
 MPI_Datatype *mpi_util_get_algorithm_stats_MPI_type()

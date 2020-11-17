@@ -52,9 +52,6 @@ void algorithm_totalizer(int world_size)
         parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 	}
 
-	parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Sending \"finalize\" notifications...");
-	mpi_util_send_finalize();
-
 	parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Waiting resultant populations...");
 	for (i = 1; i < world_size; ++i) {
 		sprintf(log_msg, "Receiving population from process %d...", i);
@@ -147,8 +144,6 @@ void algorithm_executor(int rank)
                 break;
             }
 
-            /* wait for "finalize" msg and send population */
-            mpi_util_recv_finalize();
             algorithm->get_population(&my_population);
             parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "Population ready to send.");
             mpi_util_send_population(my_population);
