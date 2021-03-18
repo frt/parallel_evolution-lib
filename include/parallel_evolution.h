@@ -5,15 +5,22 @@
  */
 #pragma once
 
+#include <libconfig.h>
 #include "parallel_evolution/common.h"
 #include "parallel_evolution/topology.h"
 #include "parallel_evolution/population.h"
 #include "parallel_evolution/algorithm.h"
 #include "parallel_evolution/log.h"
 
+typedef struct limit {
+    double min;
+    double max;
+} limit_t;
+
 typedef struct parallel_evolution {
 	topology_t *topology;
 	int number_of_dimensions;
+    limit_t *limits;
 	algorithm_t *algorithm;
 	int migration_interval;
 } parallel_evolution_t;

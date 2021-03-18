@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libconfig.h>
 #include "common.h"
 #include "migrant.h"
 #include "population.h"
@@ -14,7 +15,7 @@ typedef struct algorithm_stats {
 } algorithm_stats_t;
 
 typedef struct algorithm {
-	void (*init)();
+	void (*init)(config_t *config);
 	void (*run_iterations)(int iterations);
 	void (*insert_migrant)(migrant_t *migrant);
 	void (*pick_migrant)(migrant_t *my_migrant);

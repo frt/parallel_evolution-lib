@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/include -DSYSCONFDIR=\"$(sysconfdir)\"
 lib_LTLIBRARIES = libparallel_evolution.la
 libparallel_evolution_la_SOURCES = algorithm.c \
 				  log.c \
