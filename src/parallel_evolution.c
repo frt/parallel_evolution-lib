@@ -88,7 +88,8 @@ void algorithm_totalizer(int world_size)
     report_results(populations, world_size);
 }
 
-void log_if_error(int ret, const char *logmsg)
+// TODO: refactor. copy from random_search-lib
+void _log_if_error(int ret, const char *logmsg)
 {
     if (ret == CONFIG_FALSE) {
         parallel_evolution_log(LOG_PRIORITY_ERR, MODULE_PARALLEL_EVOLUTION, logmsg);
@@ -124,17 +125,17 @@ void algorithm_executor(int rank, config_t *config)
     int migration_interval;
     const char *log_level;
 
-    log_if_error(config_lookup_string(config, "algorithm_name", &algorithm_name), "Error reading algorithm_name. Quit.");
-    log_if_error(config_lookup_int(config, "parallel_evolution.number_of_dimensions", &number_of_dimensions), "Error reading parallel_evolution.number_of_dimensions. Quit.");
+    _log_if_error(config_lookup_string(config, "algorithm_name", &algorithm_name), "Error reading algorithm_name. Quit.");
+    _log_if_error(config_lookup_int(config, "parallel_evolution.number_of_dimensions", &number_of_dimensions), "Error reading parallel_evolution.number_of_dimensions. Quit.");
     parallel_evolution_set_number_of_dimensions(number_of_dimensions);
-    log_if_error(config_lookup_int(config, "parallel_evolution.migration_interval", &migration_interval), "Error reading parallel_evolution.migration_interval. Quit.");
+    _log_if_error(config_lookup_int(config, "parallel_evolution.migration_interval", &migration_interval), "Error reading parallel_evolution.migration_interval. Quit.");
     parallel_evolution_set_migration_interval(migration_interval);
-    log_if_error(config_lookup_string(config, "parallel_evolution.log_level", &log_level), "Error reading parallel_evolution.log_level. Quit.");
+    _log_if_error(config_lookup_string(config, "parallel_evolution.log_level", &log_level), "Error reading parallel_evolution.log_level. Quit.");
 
     // get dimensions limits from config
     // "parallel_evolution.dimensions_limits[0].min .. parallel_evolution.dimensions_limits[n-1].min"
     // "parallel_evolution.dimensions_limits[0].max .. parallel_evolution.dimensions_limits[n-1].max"
-    parallel_evolution.limits = (limit_t *)malloc(parallel_evolution.number_of_dimensions * sizeof(limit_t *));
+    parallel_evolution.limits = (limit_t *)malloc(parallel_evolution.number_of_dimensions * sizeof(limit_t));
     if (parallel_evolution.limits == NULL) {
         parallel_evolution_log(LOG_PRIORITY_ERR, MODULE_PARALLEL_EVOLUTION, "Fail to allocate the array of limits. Quit.");
         exit(ERROR_CONFIG);
@@ -142,8 +143,8 @@ void algorithm_executor(int rank, config_t *config)
     setting = config_lookup(config, "parallel_evolution.dimensions_limits");
     for (i = 0; i < number_of_dimensions; ++i) {
         if ((elem = config_setting_get_elem(setting, i)) != NULL) {
-            log_if_error(config_setting_lookup_float(elem, "min", &limit_min), "Error reading parallel_evolution.dimensions_limits. Quit.");
-            log_if_error(config_setting_lookup_float(elem, "max", &limit_max), "Error reading parallel_evolution.dimensions_limits. Quit.");
+            _log_if_error(config_setting_lookup_float(elem, "min", &limit_min), "Error reading parallel_evolution.dimensions_limits. Quit.");
+            _log_if_error(config_setting_lookup_float(elem, "max", &limit_max), "Error reading parallel_evolution.dimensions_limits. Quit.");
         }
         parallel_evolution.limits[i].min = limit_min;
         parallel_evolution.limits[i].max = limit_max;
@@ -156,7 +157,7 @@ void algorithm_executor(int rank, config_t *config)
     // "parallel_evolution.topology.nodes.0[0, ..] .. parallel_evolution.topology.nodes.(m-1)[0, ..]"
     setting = config_lookup(config, "parallel_evolution.topology.nodes");
     if (setting != NULL) {
-        n = snprintf(str, size, "%d", rank);    // discover the size of memory needed.
+        n = snprintf(str, size, "node-%d", rank);    // discover the size of memory needed.
         if (n < 0) {
             parallel_evolution_log(LOG_PRIORITY_ERR, MODULE_PARALLEL_EVOLUTION, "Error reading topology. Quit.");
             exit(ERROR_CONFIG);
@@ -176,7 +177,7 @@ void algorithm_executor(int rank, config_t *config)
 
         setting = config_setting_get_member(setting, str);
         free(str);
-        if (setting == NULL) {
+        if (setting != NULL) {
             for (i = 0; (elem = config_setting_get_elem(setting, i)) != NULL; ++i) {
                 node_id = config_setting_get_int(elem);
                 if (adjacency_list_add(adjacency_list, node_id) != SUCCESS) {
@@ -253,6 +254,8 @@ config_error_t parallel_evolution_read_config_file(config_t *config)
     config_error_t error_type;
     char error_msg[1024];
 
+    config_init(config);
+
     config_read_file(config, config_file);
     error_type = config_error_type(config);
     switch (error_type) {
@@ -280,9 +283,9 @@ config_error_t parallel_evolution_read_config_file(config_t *config)
 int parallel_evolution_run(int *argc, char ***argv)
 {
     int rank, world_size;
-    config_t *config;
+    config_t config;
 
-    if (parallel_evolution_read_config_file(config) != CONFIG_ERR_NONE)
+    if (parallel_evolution_read_config_file(&config) != CONFIG_ERR_NONE)
         exit(ERROR_CONFIG);
 
     MPI_Init(argc, argv);
@@ -294,7 +297,7 @@ int parallel_evolution_run(int *argc, char ***argv)
     sprintf (log_msg, "I am process %d of %d.", rank, world_size);
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 
-    algorithm_executor(rank, config);
+    algorithm_executor(rank, &config);
     if (rank == 0)
         algorithm_totalizer(world_size);
 

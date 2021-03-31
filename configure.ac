@@ -16,6 +16,7 @@ fi
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([mpi.h],,AC_CHECK_HEADERS([mpi/mpi.h],,AC_MSG_ERROR([oops! is mpi installed?])))
+AC_CHECK_HEADERS([libconfig.h],,AC_MSG_ERROR([oops! is libconfig installed?]))
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
