@@ -86,6 +86,7 @@ void algorithm_totalizer(int world_size)
 
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "All populations received.");
     report_results(populations, world_size);
+    free(populations);
 }
 
 // TODO: refactor. copy from random_search-lib
@@ -190,8 +191,8 @@ void algorithm_executor(int rank, config_t *config)
                 exit(ERROR_CONFIG);
             }
             adjacency_array_size = i;
-            adjacency_list_destroy(&adjacency_list);
         }
+        adjacency_list_destroy(&adjacency_list);
     }
 
     if (parallel_evolution.algorithm == NULL) {
@@ -246,6 +247,7 @@ void algorithm_executor(int rank, config_t *config)
             break;
         }
     }
+    migrant_destroy(&migrant);
 }
 
 config_error_t parallel_evolution_read_config_file(config_t *config)
@@ -253,8 +255,6 @@ config_error_t parallel_evolution_read_config_file(config_t *config)
     const char *config_file = SYSCONFDIR "/parallel_evolution.conf";
     config_error_t error_type;
     char error_msg[1024];
-
-    config_init(config);
 
     config_read_file(config, config_file);
     error_type = config_error_type(config);
@@ -285,6 +285,7 @@ int parallel_evolution_run(int *argc, char ***argv)
     int rank, world_size;
     config_t config;
 
+    config_init(&config);
     if (parallel_evolution_read_config_file(&config) != CONFIG_ERR_NONE)
         exit(ERROR_CONFIG);
 
@@ -300,6 +301,8 @@ int parallel_evolution_run(int *argc, char ***argv)
     algorithm_executor(rank, &config);
     if (rank == 0)
         algorithm_totalizer(world_size);
+
+    config_destroy(&config);
 
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, "MPI will be finalized.");
     MPI_Finalize();

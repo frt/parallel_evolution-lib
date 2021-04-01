@@ -32,6 +32,7 @@ status_t migrant_create(migrant_t **migrant, int var_size)
 
 void migrant_destroy(migrant_t **migrant)
 {
+    free((*migrant)->var);
 	free(*migrant);
 	*migrant = NULL;
 	parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_MIGRANT, "Migrant destroyed.");
