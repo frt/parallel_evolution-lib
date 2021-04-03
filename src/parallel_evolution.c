@@ -3,6 +3,8 @@
 #include "parallel_evolution.h"
 #include "parallel_evolution/mpi_util.h"
 #include "parallel_evolution/report.h"
+#include "parallel_evolution/config.h"
+
 #if HAVE_MPI_H
     #include <mpi.h>
 #elif HAVE_MPI_MPI_H
@@ -89,7 +91,6 @@ void algorithm_totalizer(int world_size)
     free(populations);
 }
 
-// TODO: refactor. copy from random_search-lib
 void _log_if_error(int ret, const char *logmsg)
 {
     if (ret == CONFIG_FALSE) {
@@ -126,12 +127,15 @@ void algorithm_executor(int rank, config_t *config)
     int migration_interval;
     const char *log_level;
 
-    _log_if_error(config_lookup_string(config, "algorithm_name", &algorithm_name), "Error reading algorithm_name. Quit.");
-    _log_if_error(config_lookup_int(config, "parallel_evolution.number_of_dimensions", &number_of_dimensions), "Error reading parallel_evolution.number_of_dimensions. Quit.");
+    parallel_evolution_config_lookup_string(config, "algorithm_name", &algorithm_name);
+
+    parallel_evolution_config_lookup_int(config, "parallel_evolution.number_of_dimensions", &number_of_dimensions);
     parallel_evolution_set_number_of_dimensions(number_of_dimensions);
-    _log_if_error(config_lookup_int(config, "parallel_evolution.migration_interval", &migration_interval), "Error reading parallel_evolution.migration_interval. Quit.");
+
+    parallel_evolution_config_lookup_int(config, "parallel_evolution.migration_interval", &migration_interval);
     parallel_evolution_set_migration_interval(migration_interval);
-    _log_if_error(config_lookup_string(config, "parallel_evolution.log_level", &log_level), "Error reading parallel_evolution.log_level. Quit.");
+
+    parallel_evolution_config_lookup_string(config, "parallel_evolution.log_level", &log_level);
 
     // get dimensions limits from config
     // "parallel_evolution.dimensions_limits[0].min .. parallel_evolution.dimensions_limits[n-1].min"

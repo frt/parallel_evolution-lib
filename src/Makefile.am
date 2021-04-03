@@ -7,7 +7,8 @@ libparallel_evolution_la_SOURCES = algorithm.c \
 				  parallel_evolution.c \
 				  population.c \
 				  report.c \
-				  topology.c
+				  topology.c \
+				  config.c
 nobase_include_HEADERS = ../include/parallel_evolution.h \
 			 ../include/parallel_evolution/algorithm.h \
 			 ../include/parallel_evolution/log.h \
@@ -16,7 +17,8 @@ nobase_include_HEADERS = ../include/parallel_evolution.h \
 			 ../include/parallel_evolution/report.h \
 			 ../include/parallel_evolution/common.h \
 			 ../include/parallel_evolution/migrant.h \
-			 ../include/parallel_evolution/topology.h
+			 ../include/parallel_evolution/topology.h \
+			 ../include/parallel_evolution/config.h
 
 mpi_util.o: mpi_util.c
 	$(MPICC) $(AM_CPPFLAGS) $(CFLAGS) -c -o $@ $<

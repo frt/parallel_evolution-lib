@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <libconfig.h>
+#include "parallel_evolution/config.h"
 #include "parallel_evolution/common.h"
 #include "parallel_evolution/topology.h"
 #include "parallel_evolution/population.h"
