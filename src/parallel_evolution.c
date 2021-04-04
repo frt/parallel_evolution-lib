@@ -328,6 +328,21 @@ void parallel_evolution_set_number_of_dimensions(int number_of_dimensions)
     parallel_evolution_log(LOG_PRIORITY_DEBUG, MODULE_PARALLEL_EVOLUTION, log_msg);
 }
 
+int parallel_evolution_get_number_of_dimensions()
+{
+    return parallel_evolution.number_of_dimensions;
+}
+
+double parallel_evolution_get_limit_min(int dimension)
+{
+    return parallel_evolution.limits[dimension].min;
+}
+
+double parallel_evolution_get_limit_max(int dimension)
+{
+    return parallel_evolution.limits[dimension].max;
+}
+
 void parallel_evolution_set_algorithm(algorithm_t *algorithm)
 {
     parallel_evolution.algorithm = algorithm;

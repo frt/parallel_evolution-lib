@@ -28,7 +28,12 @@ typedef struct parallel_evolution {
 extern parallel_evolution_t parallel_evolution;
 
 void parallel_evolution_set_topology(topology_t *topology);
+
 void parallel_evolution_set_number_of_dimensions(int number_of_dimensions);
+int parallel_evolution_get_number_of_dimensions();
+double parallel_evolution_get_limit_min(int dimension);
+double parallel_evolution_get_limit_max(int dimension);
+
 void parallel_evolution_create_processes(int number_of_islands);
 void parallel_evolution_set_algorithm(algorithm_t *algorithm);
 void parallel_evolution_set_migration_interval(int);
