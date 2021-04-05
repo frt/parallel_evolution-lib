@@ -122,12 +122,9 @@ void algorithm_executor(int rank, config_t *config)
 
     // config vars
     config_setting_t *setting, *elem;
-    const char *algorithm_name;
     int number_of_dimensions;
     int migration_interval;
     const char *log_level;
-
-    parallel_evolution_config_lookup_string(config, "algorithm_name", &algorithm_name);
 
     parallel_evolution_config_lookup_int(config, "parallel_evolution.number_of_dimensions", &number_of_dimensions);
     parallel_evolution_set_number_of_dimensions(number_of_dimensions);
